@@ -12,13 +12,13 @@
     <style>
         :root {
             --bg-color: #000000;
-            --card-bg: #1a1a1a;
-            --input-bg: #262626;
+            --card-bg: #111111;
+            --input-bg: #1c1c1c;
             --text-main: #ffffff;
-            --text-dim: #a3a3a3;
-            --accent: #404040; /* Neutrales Dunkelgrau */
-            --danger: #b91c1c;
-            --border-radius: 10px;
+            --text-dim: #888888;
+            --accent: #2a2a2a;
+            --danger: #991b1b;
+            --border-radius: 12px;
         }
 
         * {
@@ -33,18 +33,17 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             height: 100vh;
-            overflow: hidden; /* Verhindert Scrollen auf der Hauptseite */
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
 
-        /* Navigations-Logik */
         .view {
             display: none;
             flex-direction: column;
             height: 100%;
-            padding-top: 20px;
+            padding-top: 10px;
         }
 
         .view.active {
@@ -53,365 +52,388 @@
 
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             color: var(--text-dim);
         }
 
-        /* Kompakte Stats */
-        .stats-mini {
+        /* Stats */
+        .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
-        .stat-box {
+        .stat-card {
             background: var(--card-bg);
             padding: 12px;
             border-radius: var(--border-radius);
             text-align: center;
-            border: 1px solid #333;
+            border: 1px solid #222;
         }
 
         .stat-label {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: var(--text-dim);
             text-transform: uppercase;
             display: block;
+            margin-bottom: 2px;
         }
 
         .stat-val {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
         }
 
-        /* Kompaktes Formular */
-        .form-card {
+        /* Form */
+        .form-container {
             background: var(--card-bg);
             padding: 15px;
             border-radius: var(--border-radius);
-            border: 1px solid #333;
+            border: 1px solid #222;
         }
 
-        .field {
+        .input-row {
             margin-bottom: 12px;
         }
 
         label {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             margin-bottom: 4px;
-            margin-left: 2px;
         }
 
         input, select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border-radius: 8px;
-            border: 1px solid #404040;
+            border: 1px solid #333;
             background: var(--input-bg);
             color: white;
             font-size: 1rem;
             outline: none;
         }
 
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+            padding: 5px 0;
+        }
+
+        .checkbox-row input {
+            width: 20px;
+            height: 20px;
+        }
+
         .btn {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 10px;
             border: none;
             font-weight: 600;
-            cursor: pointer;
             font-size: 0.9rem;
+            cursor: pointer;
             transition: opacity 0.2s;
         }
 
-        .btn-main {
-            background: #ffffff;
-            color: #000000;
-            margin-top: 5px;
-        }
+        .btn-add { background: #ffffff; color: #000; margin-top: 10px; }
+        .btn-nav { background: #222; color: #fff; margin-top: 15px; }
+        .btn-action { background: #1a1a1a; color: #fff; border: 1px solid #333; font-size: 0.75rem; padding: 10px; }
 
-        .btn-nav {
-            background: #333;
-            color: white;
-            margin-top: 15px;
-        }
-
-        /* Listen-Ansicht */
-        #view-list {
-            overflow-y: auto; /* Scrollen nur in der Liste erlaubt */
-        }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* List View */
+        #view-list { overflow-y: auto; }
+        
+        .filter-section {
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 8px;
             margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
         }
 
-        .expense-item {
+        .expense-list-container {
+            flex: 1;
+            padding-bottom: 20px;
+        }
+
+        .item {
             background: var(--card-bg);
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-left: 3px solid #444;
+            border: 1px solid #1a1a1a;
         }
 
-        .item-info .name {
-            font-weight: 500;
-            display: block;
-            font-size: 0.95rem;
-        }
+        .item-name { font-weight: 600; font-size: 0.9rem; display: block; }
+        .item-meta { font-size: 0.7rem; color: var(--text-dim); }
+        .item-price { font-weight: bold; font-size: 0.9rem; margin-right: 10px; }
+        .del { color: var(--danger); background: none; border: none; font-size: 1rem; }
 
-        .item-info .sub {
-            font-size: 0.7rem;
-            color: var(--text-dim);
-        }
-
-        .item-right {
-            text-align: right;
-            display: flex;
-            align-items: center;
-        }
-
-        .item-amount {
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        .del-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            margin-left: 12px;
-            font-size: 1rem;
-        }
-
-        .action-bar {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: auto;
-            padding-top: 15px;
-            padding-bottom: 10px;
-        }
-
-        .btn-small {
-            font-size: 0.75rem;
-            padding: 8px;
-            background: #262626;
-            color: white;
-            border: 1px solid #444;
-        }
-
-        /* PDF & Druck Optimierung */
+        /* Print Settings */
         @media print {
-            body { 
-                background: white !important; 
-                color: black !important; 
-                overflow: visible !important;
-                height: auto !important;
-            }
+            body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
-            #view-list { display: block !important; overflow: visible !important; }
-            .btn, .del-btn, .action-bar, .btn-nav { display: none !important; }
-            .stat-box { 
-                background: #f2f2f2 !important; 
-                color: black !important; 
-                border: 1px solid #ccc !important;
-            }
-            .expense-item { 
-                background: white !important; 
-                border: 1px solid #eee !important;
-                color: black !important;
-                page-break-inside: avoid;
-            }
-            .item-info .sub { color: #666 !important; }
-            h1 { color: black !important; margin-bottom: 10px; }
-            @page { margin: 1cm; size: auto; }
+            #view-list { display: block !important; }
+            .btn, .filter-section, .del, header, .btn-nav { display: none !important; }
+            .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; }
+            .item-meta { color: #555 !important; }
+            .stat-card { background: white !important; border: 1px solid #ccc !important; color: black !important; }
         }
     </style>
 </head>
 <body>
 
     <div id="view-home" class="view active">
-        <header>
-            <h1>Neue Ausgabe</h1>
-        </header>
+        <header><h1>Ausgabe Erfassen</h1></header>
 
-        <div class="stats-mini">
-            <div class="stat-box">
+        <div class="stats-grid">
+            <div class="stat-card">
                 <span class="stat-label">Gesamt</span>
-                <span class="stat-val" id="home-total">0,00 €</span>
+                <span class="stat-val" id="total-val">0,00 €</span>
             </div>
-            <div class="stat-box">
+            <div class="stat-card">
                 <span class="stat-label">Einträge</span>
-                <span class="stat-val" id="home-count">0</span>
+                <span class="stat-val" id="total-count">0</span>
             </div>
         </div>
 
-        <div class="form-card">
-            <div class="field">
-                <label>Artikel / Dienstleistung</label>
+        <div class="form-container">
+            <div class="input-row">
+                <label>Bezeichnung</label>
                 <input type="text" id="desc" placeholder="z.B. Klebeband" autocomplete="off">
             </div>
-            <div class="field">
+            <div class="input-row">
                 <label>Betrag in €</label>
                 <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
             </div>
-            <div class="field">
+            <div class="input-row">
                 <label>Kategorie</label>
                 <select id="category">
+                    <option value="Internet">Internet</option>
+                    <option value="Telefon">Telefon</option>
+                    <option value="Community">Community</option>
                     <option value="Büromaterial">Büromaterial</option>
                     <option value="Werkzeug">Werkzeug</option>
-                    <option value="Fahrtkosten">Fahrtkosten</option>
                     <option value="Sonstiges">Sonstiges</option>
                 </select>
             </div>
-            <button class="btn btn-main" onclick="addExpense()">Eintrag speichern</button>
+            <div class="checkbox-row">
+                <input type="checkbox" id="recurring">
+                <label for="recurring" style="margin:0">Monatlich wiederkehrend</label>
+            </div>
+            <button class="btn btn-add" onclick="addExpense()">Speichern</button>
         </div>
 
-        <button class="btn btn-nav" onclick="showView('view-list')">Liste anzeigen →</button>
+        <button class="btn btn-nav" onclick="showView('view-list')">Liste & Export →</button>
         
-        <div style="margin-top: auto; padding-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn btn-small" onclick="backupData()">Backup</button>
-            <button class="btn btn-small" onclick="document.getElementById('importFile').click()">Laden</button>
+        <div style="margin-top: auto; padding-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn btn-action" onclick="backup()">Backup</button>
+            <button class="btn btn-action" onclick="document.getElementById('imp').click()">Laden</button>
         </div>
     </div>
 
     <div id="view-list" class="view">
-        <div class="list-header">
-            <button class="btn-small" onclick="showView('view-home')" style="width: auto; padding: 5px 15px;">← Zurück</button>
-            <h1 style="margin: 0;">Alle Ausgaben</h1>
+        <header style="display:flex; justify-content: space-between; align-items:center;">
+            <button onclick="showView('view-home')" style="background:none; border:none; color:white; font-size:0.8rem;">← Zurück</button>
+            <h1>Übersicht</h1>
+            <div style="width:50px"></div>
+        </header>
+
+        <div class="filter-section">
+            <div>
+                <label>Von</label>
+                <input type="date" id="filter-from" onchange="render()">
+            </div>
+            <div>
+                <label>Bis</label>
+                <input type="date" id="filter-to" onchange="render()">
+            </div>
         </div>
 
-        <div id="expense-container" style="flex: 1;">
-            </div>
+        <div id="list-container" class="expense-list-container"></div>
 
-        <div class="action-bar">
-            <button class="btn btn-small" onclick="window.print()">PDF Export</button>
-            <button class="btn btn-small" onclick="exportCSV()">CSV (Steuer)</button>
+        <div style="padding-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn btn-action" onclick="window.print()">PDF Export</button>
+            <button class="btn btn-action" onclick="exportCSV()">CSV (Steuer)</button>
         </div>
     </div>
 
-    <input type="file" id="importFile" style="display:none" onchange="restoreData(event)">
+    <input type="file" id="imp" style="display:none" onchange="restore(event)">
 
     <script>
         let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        let recurringItems = JSON.parse(localStorage.getItem('recurringItems')) || [];
+        let lastRecurringCheck = localStorage.getItem('lastCheck') || "";
 
-        function showView(viewId) {
+        // Automatische Prüfung auf neue Monate für wiederkehrende Kosten
+        function checkRecurring() {
+            const now = new Date();
+            const currentMonthKey = `${now.getFullYear()}-${now.getMonth()}`;
+            
+            if (lastRecurringCheck !== currentMonthKey) {
+                recurringItems.forEach(item => {
+                    // Prüfen, ob für diesen Monat schon ein Eintrag existiert
+                    const alreadyAdded = expenses.find(e => 
+                        e.desc === item.desc && 
+                        e.amount === item.amount && 
+                        new Date(e.date).getMonth() === now.getMonth() &&
+                        new Date(e.date).getFullYear() === now.getFullYear()
+                    );
+
+                    if (!alreadyAdded) {
+                        expenses.push({
+                            ...item,
+                            date: new Date().toISOString(),
+                            isAuto: true
+                        });
+                    }
+                });
+                localStorage.setItem('lastCheck', currentMonthKey);
+                save();
+            }
+        }
+
+        function showView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+            document.getElementById(id).classList.add('active');
             render();
         }
 
-        function render() {
-            const container = document.getElementById('expense-container');
-            const hTotal = document.getElementById('home-total');
-            const hCount = document.getElementById('home-count');
-            
-            container.innerHTML = '';
-            let total = 0;
-
-            expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            expenses.forEach((item, index) => {
-                total += parseFloat(item.amount);
-                const div = document.createElement('div');
-                div.className = 'expense-item';
-                div.innerHTML = `
-                    <div class="item-info">
-                        <span class="name">${item.desc}</span>
-                        <span class="sub">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</span>
-                    </div>
-                    <div class="item-right">
-                        <span class="item-amount">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
-                        <button class="del-btn" onclick="deleteExpense(${index})">✕</button>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-
-            hTotal.innerText = total.toFixed(2).replace('.', ',') + ' €';
-            hCount.innerText = expenses.length;
+        function save() {
             localStorage.setItem('expenses', JSON.stringify(expenses));
+            localStorage.setItem('recurringItems', JSON.stringify(recurringItems));
         }
 
         function addExpense() {
             const desc = document.getElementById('desc').value;
             const amount = document.getElementById('amount').value;
             const category = document.getElementById('category').value;
+            const isRecurring = document.getElementById('recurring').checked;
 
-            if(!desc || !amount) return alert("Fehlende Daten!");
+            if(!desc || !amount) return alert("Bitte alles ausfüllen");
 
-            expenses.push({
-                desc,
-                amount,
-                category,
-                date: new Date().toISOString()
-            });
+            const newItem = { desc, amount, category, date: new Date().toISOString() };
+            
+            expenses.push(newItem);
+            if (isRecurring) {
+                recurringItems.push({ desc, amount, category });
+            }
 
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
+            document.getElementById('recurring').checked = false;
+            
+            save();
             render();
-            alert("Gespeichert!");
+            alert("Erfolgreich gespeichert!");
         }
 
-        function deleteExpense(index) {
+        function render() {
+            const container = document.getElementById('list-container');
+            const fromDate = document.getElementById('filter-from').value;
+            const toDate = document.getElementById('filter-to').value;
+            
+            container.innerHTML = '';
+            let total = 0;
+
+            // Filtern
+            let filtered = expenses.sort((a,b) => new Date(b.date) - new Date(a.date));
+            if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
+            if (toDate) {
+                let end = new Date(toDate);
+                end.setHours(23,59,59);
+                filtered = filtered.filter(e => new Date(e.date) <= end);
+            }
+
+            filtered.forEach((item, index) => {
+                total += parseFloat(item.amount);
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div>
+                        <span class="item-name">${item.desc}</span>
+                        <span class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</span>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <span class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
+                        <button class="del" onclick="removeExpense(${index})">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('total-val').innerText = total.toFixed(2).replace('.', ',') + ' €';
+            document.getElementById('total-count').innerText = filtered.length;
+        }
+
+        function removeExpense(idx) {
             if(confirm("Löschen?")) {
-                expenses.splice(index, 1);
+                expenses.splice(idx, 1);
+                save();
                 render();
             }
         }
 
         function exportCSV() {
-            let csv = "\uFEFFDatum;Beschreibung;Kategorie;Betrag\n";
-            expenses.forEach(item => {
-                const date = new Date(item.date).toLocaleDateString('de-DE');
-                csv += `${date};${item.desc};${item.category};${item.amount.replace('.', ',')}\n`;
+            const fromDate = document.getElementById('filter-from').value;
+            const toDate = document.getElementById('filter-to').value;
+            
+            let filtered = expenses;
+            if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
+            if (toDate) filtered = filtered.filter(e => new Date(e.date) <= new Date(toDate));
+
+            let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Betrag\n";
+            filtered.forEach(e => {
+                csv += `${new Date(e.date).toLocaleDateString('de-DE')};${e.desc};${e.category};${e.amount.replace('.', ',')}\n`;
             });
+            
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Steuer_Export.csv`;
-            link.click();
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Export_Steuer_${fromDate||'Start'}_bis_${toDate||'Ende'}.csv`;
+            a.click();
         }
 
-        function backupData() {
-            const data = JSON.stringify(expenses);
+        function backup() {
+            const data = JSON.stringify({expenses, recurringItems});
             const blob = new Blob([data], { type: 'application/json' });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `Backup_Spesen.json`;
-            link.click();
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Spesen_Backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
         }
 
-        function restoreData(event) {
+        function restore(event) {
             const file = event.target.files[0];
-            if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    expenses = JSON.parse(e.target.result);
-                    render();
-                    alert("Daten geladen!");
-                } catch(err) { alert("Fehler!"); }
+            reader.onload = (e) => {
+                const data = JSON.parse(e.target.result);
+                expenses = data.expenses || [];
+                recurringItems = data.recurringItems || [];
+                save();
+                render();
+                alert("Daten erfolgreich geladen!");
             };
             reader.readAsText(file);
         }
 
+        // App Start
+        checkRecurring();
         render();
     </script>
 </body>
