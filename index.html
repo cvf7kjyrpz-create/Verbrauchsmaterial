@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Spesen Pro</title>
     
+    <!-- iPhone Web App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Spesen">
@@ -18,6 +19,7 @@
             --text-dim: #888888;
             --accent: #2a2a2a;
             --danger: #991b1b;
+            --edit: #0284c7;
             --border-radius: 12px;
         }
 
@@ -181,15 +183,30 @@
 
         .item-name { font-weight: 600; font-size: 0.9rem; display: block; }
         .item-meta { font-size: 0.7rem; color: var(--text-dim); }
-        .item-price { font-weight: bold; font-size: 0.9rem; margin-right: 10px; }
-        .del { color: var(--danger); background: none; border: none; font-size: 1rem; }
+        .item-price { font-weight: bold; font-size: 0.9rem; margin-right: 5px; }
+        
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .icon-btn { 
+            background: none; 
+            border: none; 
+            font-size: 1.1rem; 
+            padding: 5px;
+        }
+        
+        .edit-btn { color: var(--edit); }
+        .del-btn { color: var(--danger); }
 
         /* Print Settings */
         @media print {
             body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
             #view-list { display: block !important; }
-            .btn, .filter-section, .del, header, .btn-nav { display: none !important; }
+            .btn, .filter-section, .action-btns, header, .btn-nav { display: none !important; }
             .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; }
             .item-meta { color: #555 !important; }
             .stat-card { background: white !important; border: 1px solid #ccc !important; color: black !important; }
@@ -198,6 +215,7 @@
 </head>
 <body>
 
+    <!-- HOME: EINGABE -->
     <div id="view-home" class="view active">
         <header><h1>Ausgabe Erfassen</h1></header>
 
@@ -242,11 +260,12 @@
         <button class="btn btn-nav" onclick="showView('view-list')">Liste & Export →</button>
         
         <div style="margin-top: auto; padding-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button class="btn btn-action" onclick="backup()">Backup</button>
+            <button class="btn btn-action" onclick="backup()">Backup (JSON)</button>
             <button class="btn btn-action" onclick="document.getElementById('imp').click()">Laden</button>
         </div>
     </div>
 
+    <!-- LISTE & FILTER -->
     <div id="view-list" class="view">
         <header style="display:flex; justify-content: space-between; align-items:center;">
             <button onclick="showView('view-home')" style="background:none; border:none; color:white; font-size:0.8rem;">← Zurück</button>
@@ -280,6 +299,11 @@
         let recurringItems = JSON.parse(localStorage.getItem('recurringItems')) || [];
         let lastRecurringCheck = localStorage.getItem('lastCheck') || "";
 
+        // Eindeutige ID generieren (verhindert Fehler beim Löschen/Bearbeiten im gefilterten Zustand)
+        function generateId() {
+            return Date.now().toString() + Math.random().toString(36).substring(2, 9);
+        }
+
         // Automatische Prüfung auf neue Monate für wiederkehrende Kosten
         function checkRecurring() {
             const now = new Date();
@@ -290,14 +314,18 @@
                     // Prüfen, ob für diesen Monat schon ein Eintrag existiert
                     const alreadyAdded = expenses.find(e => 
                         e.desc === item.desc && 
-                        e.amount === item.amount && 
+                        e.category === item.category &&
                         new Date(e.date).getMonth() === now.getMonth() &&
-                        new Date(e.date).getFullYear() === now.getFullYear()
+                        new Date(e.date).getFullYear() === now.getFullYear() &&
+                        e.isAuto === true
                     );
 
                     if (!alreadyAdded) {
                         expenses.push({
-                            ...item,
+                            id: generateId(),
+                            desc: item.desc,
+                            amount: item.amount,
+                            category: item.category,
                             date: new Date().toISOString(),
                             isAuto: true
                         });
@@ -327,10 +355,18 @@
 
             if(!desc || !amount) return alert("Bitte alles ausfüllen");
 
-            const newItem = { desc, amount, category, date: new Date().toISOString() };
+            const newItem = { 
+                id: generateId(), 
+                desc, 
+                amount, 
+                category, 
+                date: new Date().toISOString() 
+            };
             
             expenses.push(newItem);
+            
             if (isRecurring) {
+                // Speichert die Vorlage, ohne die ID (damit sie jeden Monat neu generiert werden kann)
                 recurringItems.push({ desc, amount, category });
             }
 
@@ -360,18 +396,25 @@
                 filtered = filtered.filter(e => new Date(e.date) <= end);
             }
 
-            filtered.forEach((item, index) => {
+            filtered.forEach(item => {
                 total += parseFloat(item.amount);
+                
+                // Fallback, falls alte Einträge keine ID haben
+                if(!item.id) item.id = generateId(); 
+
                 const div = document.createElement('div');
                 div.className = 'item';
                 div.innerHTML = `
                     <div>
-                        <span class="item-name">${item.desc}</span>
+                        <span class="item-name">${item.desc} ${item.isAuto ? '🔄' : ''}</span>
                         <span class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</span>
                     </div>
                     <div style="display:flex; align-items:center;">
                         <span class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
-                        <button class="del" onclick="removeExpense(${index})">✕</button>
+                        <div class="action-btns">
+                            <button class="icon-btn edit-btn" onclick="editExpense('${item.id}')">✎</button>
+                            <button class="icon-btn del-btn" onclick="removeExpense('${item.id}')">✕</button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(div);
@@ -381,9 +424,27 @@
             document.getElementById('total-count').innerText = filtered.length;
         }
 
-        function removeExpense(idx) {
-            if(confirm("Löschen?")) {
-                expenses.splice(idx, 1);
+        function editExpense(id) {
+            const expense = expenses.find(e => e.id === id);
+            if (!expense) return;
+
+            let newVal = prompt(`Neuen Betrag für '${expense.desc}' eingeben:`, expense.amount);
+            
+            if (newVal !== null && newVal.trim() !== "") {
+                newVal = newVal.replace(',', '.'); // Komma in Punkt umwandeln für Berechnung
+                if (!isNaN(newVal)) {
+                    expense.amount = newVal;
+                    save();
+                    render();
+                } else {
+                    alert("Bitte eine gültige Zahl eingeben.");
+                }
+            }
+        }
+
+        function removeExpense(id) {
+            if(confirm("Diesen Eintrag wirklich löschen?")) {
+                expenses = expenses.filter(e => e.id !== id);
                 save();
                 render();
             }
@@ -395,7 +456,11 @@
             
             let filtered = expenses;
             if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
-            if (toDate) filtered = filtered.filter(e => new Date(e.date) <= new Date(toDate));
+            if (toDate) {
+                let end = new Date(toDate);
+                end.setHours(23,59,59);
+                filtered = filtered.filter(e => new Date(e.date) <= end);
+            }
 
             let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Betrag\n";
             filtered.forEach(e => {
@@ -420,14 +485,23 @@
 
         function restore(event) {
             const file = event.target.files[0];
+            if (!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
-                const data = JSON.parse(e.target.result);
-                expenses = data.expenses || [];
-                recurringItems = data.recurringItems || [];
-                save();
-                render();
-                alert("Daten erfolgreich geladen!");
+                try {
+                    const data = JSON.parse(e.target.result);
+                    expenses = data.expenses || [];
+                    recurringItems = data.recurringItems || [];
+                    
+                    // Alten Daten eine ID geben, falls sie aus einem alten Backup stammen
+                    expenses.forEach(item => { if(!item.id) item.id = generateId(); });
+                    
+                    save();
+                    render();
+                    alert("Daten erfolgreich geladen!");
+                } catch (err) {
+                    alert("Fehler beim Laden der Datei.");
+                }
             };
             reader.readAsText(file);
         }
