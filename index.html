@@ -14,14 +14,15 @@
         :root {
             --bg-color: #000000;
             --card-bg: #111111;
-            --input-bg: #1c1c1c;
+            --input-bg: #1a1a1a;
             --text-main: #ffffff;
             --text-dim: #888888;
             --accent: #2a2a2a;
-            --danger: #991b1b;
-            --edit: #0284c7;
-            --success: #15803d;
-            --border-radius: 12px;
+            --danger: #ef4444;
+            --edit: #3b82f6;
+            --success: #10b981;
+            --border-radius: 10px;
+            --border-color: rgba(255, 255, 255, 0.1);
         }
 
         * {
@@ -39,14 +40,14 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
+            padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom) 12px;
         }
 
         .view {
             display: none;
             flex-direction: column;
             height: 100%;
-            padding-top: 10px;
+            padding-top: 5px;
         }
 
         .view.active {
@@ -55,14 +56,14 @@
 
         header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         h1 {
-            font-size: 1rem;
-            font-weight: 700;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             color: var(--text-dim);
         }
 
@@ -70,59 +71,71 @@
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .stat-card {
             background: var(--card-bg);
-            padding: 12px;
+            padding: 8px;
             border-radius: var(--border-radius);
             text-align: center;
-            border: 1px solid #222;
+            border: 1px solid var(--border-color);
         }
 
         .stat-label {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: var(--text-dim);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
             display: block;
             margin-bottom: 2px;
         }
 
         .stat-val {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: bold;
         }
 
         /* Form */
         .form-container {
             background: var(--card-bg);
-            padding: 15px;
+            padding: 12px;
             border-radius: var(--border-radius);
-            border: 1px solid #222;
+            border: 1px solid var(--border-color);
         }
 
         .input-row {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-dim);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         input[type="text"], input[type="number"], input[type="date"], select {
             width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #333;
+            max-width: 100%;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
             background: var(--input-bg);
             color: white;
-            font-size: 1rem;
+            font-size: 0.9rem;
             outline: none;
+            appearance: none; /* Entfernt Standard-iOS Styling */
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23888888%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 10px auto;
         }
 
         .file-input-wrapper {
@@ -131,12 +144,12 @@
             display: inline-block;
             width: 100%;
             background: var(--input-bg);
-            border: 1px dashed #555;
-            border-radius: 8px;
+            border: 1px dashed #444;
+            border-radius: 6px;
             text-align: center;
-            padding: 12px;
+            padding: 8px;
             color: var(--text-dim);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
         }
         
         .file-input-wrapper input[type=file] {
@@ -152,34 +165,42 @@
         .checkbox-row {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-top: 5px;
-            padding: 5px 0;
+            gap: 8px;
+            margin-top: 4px;
+            padding: 2px 0;
         }
 
-        .checkbox-row input {
-            width: 20px;
-            height: 20px;
+        .checkbox-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--text-main);
+        }
+        
+        .checkbox-row label {
+            margin: 0;
+            text-transform: none;
+            font-size: 0.8rem;
+            letter-spacing: normal;
         }
 
         /* Months Grid Styling */
         .months-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin-top: 8px;
-            margin-bottom: 12px;
+            gap: 4px;
+            margin-top: 6px;
+            margin-bottom: 8px;
         }
         
         .month-checkbox { display: none; }
         
         .month-label {
             background: var(--input-bg);
-            border: 1px solid #333;
-            border-radius: 6px;
-            padding: 10px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px 0;
             text-align: center;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
             cursor: pointer;
             transition: all 0.2s;
@@ -190,23 +211,23 @@
             background: #ffffff;
             color: #000000;
             border-color: #ffffff;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .btn {
             width: 100%;
-            padding: 14px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             border: none;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: opacity 0.2s;
         }
 
-        .btn-add { background: #ffffff; color: #000; margin-top: 10px; }
-        .btn-nav { background: #222; color: #fff; margin-top: 15px; }
-        .btn-action { background: #1a1a1a; color: #fff; border: 1px solid #333; font-size: 0.75rem; padding: 10px; }
+        .btn-add { background: #ffffff; color: #000; margin-top: 5px; }
+        .btn-nav { background: #222; color: #fff; margin-top: 10px; border: 1px solid var(--border-color); }
+        .btn-action { background: #1a1a1a; color: #fff; border: 1px solid var(--border-color); font-size: 0.7rem; padding: 8px; }
 
         /* List View */
         #view-list { overflow-y: auto; }
@@ -214,15 +235,16 @@
         .filter-section {
             background: var(--card-bg);
             padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 12px;
+            border: 1px solid var(--border-color);
         }
 
         .filter-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 12px; /* Vergrößert, damit Datumsfelder sich nicht berühren */
+            margin-bottom: 8px;
         }
 
         .expense-list-container {
@@ -232,12 +254,12 @@
 
         .item {
             background: var(--card-bg);
-            padding: 12px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: var(--border-radius);
             margin-bottom: 8px;
             display: flex;
             flex-direction: column;
-            border: 1px solid #1a1a1a;
+            border: 1px solid var(--border-color);
         }
 
         .item-top {
@@ -246,36 +268,46 @@
             align-items: center;
         }
 
-        .item-name { font-weight: 600; font-size: 0.9rem; display: block; }
-        .item-meta { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;}
-        .item-price { font-weight: bold; font-size: 0.9rem; margin-right: 5px; }
+        .item-name { font-weight: 600; font-size: 0.85rem; display: block; }
+        .item-meta { font-size: 0.65rem; color: var(--text-dim); margin-top: 2px;}
+        .item-price { font-weight: bold; font-size: 0.85rem; margin-right: 5px; }
         
         .badge {
-            font-size: 0.6rem;
-            background: #333;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #ccc;
+            font-size: 0.55rem;
+            background: #222;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #aaa;
             margin-left: 5px;
+            text-transform: uppercase;
         }
-        .badge-tax { background: var(--success); color: white; }
+        .badge-tax { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
 
         .item-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
+            margin-top: 8px;
             padding-top: 8px;
-            border-top: 1px solid #222;
+            border-top: 1px solid rgba(255,255,255,0.05);
         }
         
-        .action-btns { display: flex; gap: 15px; }
-        .icon-btn { background: none; border: none; font-size: 1.1rem; padding: 5px; }
+        .action-btns { display: flex; gap: 12px; }
+        .icon-btn { background: none; border: none; font-size: 1rem; padding: 2px 5px; }
         .edit-btn { color: var(--edit); }
         .del-btn { color: var(--danger); }
         .file-btn { 
-            background: #262626; color: white; border: 1px solid #444; 
-            font-size: 0.7rem; padding: 5px 10px; border-radius: 6px; 
+            background: #1a1a1a; color: white; border: 1px solid var(--border-color); 
+            font-size: 0.65rem; padding: 5px 8px; border-radius: 4px; 
+        }
+
+        /* Bottom Actions Grid */
+        .bottom-actions {
+            margin-top: auto; 
+            padding-bottom: 10px; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px;
         }
 
         /* Print Settings */
@@ -283,10 +315,10 @@
             body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
             #view-list { display: block !important; }
-            .btn, .filter-section, .item-actions, header, .btn-nav { display: none !important; }
+            .btn, .filter-section, .item-actions, header, .btn-nav, .bottom-actions { display: none !important; }
             .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; }
             .item-meta { color: #555 !important; }
-            .badge { border: 1px solid #999; color: black; background: none; }
+            .badge { border: 1px solid #999 !important; color: black !important; background: none !important; }
             .stat-card { background: white !important; border: 1px solid #ccc !important; color: black !important; }
         }
     </style>
@@ -329,26 +361,26 @@
                 </select>
             </div>
             
-            <div class="checkbox-row" style="margin-bottom: 10px;">
+            <div class="checkbox-row" style="margin-bottom: 8px;">
                 <input type="checkbox" id="tax-relevant" checked>
-                <label for="tax-relevant" style="margin:0; font-weight:bold; color:white;">Für Steuer relevant</label>
+                <label for="tax-relevant" style="font-weight:600; color:white;">Für Steuer relevant</label>
             </div>
 
-            <div class="input-row">
-                <label>Beleg / Rechnung (optional)</label>
+            <div class="input-row" style="margin-bottom: 4px;">
+                <label>Beleg / Rechnung</label>
                 <div class="file-input-wrapper">
-                    <span id="file-label">📎 Datei oder Foto auswählen...</span>
+                    <span id="file-label">📎 Optional hinzufügen...</span>
                     <input type="file" id="receipt-file" accept="image/*,application/pdf" onchange="updateFileLabel()">
                 </div>
             </div>
 
             <div class="checkbox-row">
                 <input type="checkbox" id="recurring" onchange="document.getElementById('months-container').style.display = this.checked ? 'block' : 'none'">
-                <label for="recurring" style="margin:0">Wiederkehrend aktivieren</label>
+                <label for="recurring">Wiederkehrend aktivieren</label>
             </div>
             
-            <div id="months-container" style="display: none; padding-top: 10px; border-top: 1px solid #222; margin-top: 10px;">
-                <label>In welchen Monaten eintragen?</label>
+            <div id="months-container" style="display: none; padding-top: 8px; border-top: 1px solid var(--border-color); margin-top: 8px;">
+                <label>In welchen Monaten?</label>
                 <div class="months-grid">
                     <label><input type="checkbox" class="month-checkbox" value="0"><div class="month-label">Jan</div></label>
                     <label><input type="checkbox" class="month-checkbox" value="1"><div class="month-label">Feb</div></label>
@@ -363,7 +395,7 @@
                     <label><input type="checkbox" class="month-checkbox" value="10"><div class="month-label">Nov</div></label>
                     <label><input type="checkbox" class="month-checkbox" value="11"><div class="month-label">Dez</div></label>
                 </div>
-                <button class="btn btn-action" style="margin-top: 5px; background: transparent; border-color: #444;" onclick="toggleAllMonths()">Alle markieren / aufheben</button>
+                <button class="btn btn-action" style="margin-top: 2px; background: transparent; border-color: #333;" onclick="toggleAllMonths()">Alle markieren / aufheben</button>
             </div>
 
             <button class="btn btn-add" onclick="addExpense()">Speichern</button>
@@ -371,8 +403,8 @@
 
         <button class="btn btn-nav" onclick="showView('view-list')">Liste & Export →</button>
         
-        <div style="margin-top: auto; padding-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button class="btn btn-action" onclick="backup()">Backup (Datenbank)</button>
+        <div class="bottom-actions">
+            <button class="btn btn-action" onclick="backup()">Backup (Daten)</button>
             <button class="btn btn-action" onclick="document.getElementById('imp').click()">Laden</button>
         </div>
     </div>
@@ -380,7 +412,7 @@
     <!-- LISTE & FILTER -->
     <div id="view-list" class="view">
         <header style="display:flex; justify-content: space-between; align-items:center;">
-            <button onclick="showView('view-home')" style="background:none; border:none; color:white; font-size:0.8rem;">← Zurück</button>
+            <button onclick="showView('view-home')" style="background:none; border:none; color:white; font-size:0.8rem; cursor:pointer;">← Zurück</button>
             <h1>Übersicht</h1>
             <div style="width:50px"></div>
         </header>
@@ -396,15 +428,15 @@
                     <input type="date" id="filter-to" onchange="render()">
                 </div>
             </div>
-            <div class="checkbox-row" style="margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
+            <div class="checkbox-row" style="margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 8px;">
                 <input type="checkbox" id="filter-tax" checked onchange="render()">
-                <label for="filter-tax" style="margin:0; color:white;">Nur steuerrelevante Posten anzeigen</label>
+                <label for="filter-tax" style="color:white;">Nur steuerrelevante anzeigen</label>
             </div>
         </div>
 
         <div id="list-container" class="expense-list-container"></div>
 
-        <div style="padding-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="bottom-actions">
             <button class="btn btn-action" onclick="window.print()">PDF Export</button>
             <button class="btn btn-action" onclick="exportCSV()">CSV (Steuer)</button>
         </div>
@@ -434,7 +466,6 @@
             tx.objectStore('files').put(dataUrl, id);
         }
 
-        // --- NEUE ICLOUD SPEICHER / TEILEN FUNKTION ---
         async function downloadFileFromDB(id, fileName) {
             if(!db) return alert("Datenbank nicht bereit.");
             const tx = db.transaction('files', 'readonly');
@@ -443,23 +474,19 @@
                 const dataUrl = req.result;
                 if(dataUrl) {
                     try {
-                        // Wandle den gespeicherten String (DataURL) in eine echte Datei um
                         const response = await fetch(dataUrl);
                         const blob = await response.blob();
                         const file = new File([blob], fileName || `Beleg_${id}.pdf`, { type: blob.type });
 
-                        // Prüfen, ob das Gerät die native iOS "Teilen"-Funktion unterstützt
                         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                             await navigator.share({
                                 files: [file],
                                 title: fileName,
                             });
                         } else {
-                            // Fallback, falls die native iCloud-Teilen-Funktion nicht verfügbar ist
                             triggerClassicDownload(dataUrl, fileName || `Beleg_${id}`);
                         }
                     } catch (err) {
-                        // Fallback bei Fehlern
                         triggerClassicDownload(dataUrl, fileName || `Beleg_${id}`);
                     }
                 } else {
@@ -493,7 +520,7 @@
                 label.innerText = "📎 " + input.files[0].name;
                 label.style.color = "#fff";
             } else {
-                label.innerText = "📎 Datei oder Foto auswählen...";
+                label.innerText = "📎 Optional hinzufügen...";
                 label.style.color = "var(--text-dim)";
             }
         }
@@ -587,7 +614,7 @@
                     selectedMonths.push(parseInt(cb.value));
                 });
                 if (selectedMonths.length === 0) {
-                    return alert("Bitte wähle mindestens einen Monat für die Wiederholung aus.");
+                    return alert("Bitte wähle mindestens einen Monat aus.");
                 }
                 
                 recurringItems.push({ desc, amount, category, months: selectedMonths, taxRelevant: isTaxRelevant });
@@ -641,7 +668,7 @@
             
             save();
             render();
-            alert("Erfolgreich gespeichert!");
+            alert("Gespeichert!");
         }
 
         function render() {
@@ -684,7 +711,7 @@
                     </div>
                     <div class="item-actions">
                         <div>
-                            ${item.hasFile ? `<button class="file-btn" onclick="downloadFileFromDB('${item.id}', '${item.fileName}')">📎 Beleg in iCloud sichern</button>` : ''}
+                            ${item.hasFile ? `<button class="file-btn" onclick="downloadFileFromDB('${item.id}', '${item.fileName}')">📎 iCloud</button>` : ''}
                         </div>
                         <div class="action-btns">
                             <button class="icon-btn edit-btn" onclick="editExpense('${item.id}')">✎</button>
@@ -712,13 +739,13 @@
                     save();
                     render();
                 } else {
-                    alert("Bitte eine gültige Zahl eingeben.");
+                    alert("Gültige Zahl eingeben.");
                 }
             }
         }
 
         function removeExpense(id) {
-            if(confirm("Diesen Eintrag wirklich löschen?")) {
+            if(confirm("Diesen Eintrag löschen?")) {
                 expenses = expenses.filter(e => e.id !== id);
                 deleteFileFromDB(id);
                 save();
@@ -777,9 +804,9 @@
                     
                     save();
                     render();
-                    alert("Daten erfolgreich geladen!");
+                    alert("Daten geladen!");
                 } catch (err) {
-                    alert("Fehler beim Laden der Datei.");
+                    alert("Fehler beim Laden.");
                 }
             };
             reader.readAsText(file);
