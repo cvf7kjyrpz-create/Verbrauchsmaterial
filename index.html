@@ -20,6 +20,7 @@
             --accent: #2a2a2a;
             --danger: #991b1b;
             --edit: #0284c7;
+            --success: #15803d;
             --border-radius: 12px;
         }
 
@@ -113,7 +114,7 @@
             margin-bottom: 4px;
         }
 
-        input, select {
+        input[type="text"], input[type="number"], input[type="date"], select {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
@@ -122,6 +123,30 @@
             color: white;
             font-size: 1rem;
             outline: none;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px dashed #555;
+            border-radius: 8px;
+            text-align: center;
+            padding: 12px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            height: 100%;
         }
 
         .checkbox-row {
@@ -146,9 +171,7 @@
             margin-bottom: 12px;
         }
         
-        .month-checkbox {
-            display: none; /* Versteckt die echte Checkbox */
-        }
+        .month-checkbox { display: none; }
         
         .month-label {
             background: var(--input-bg);
@@ -193,9 +216,13 @@
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 15px;
+        }
+
+        .filter-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
+            margin-bottom: 10px;
         }
 
         .expense-list-container {
@@ -209,39 +236,57 @@
             border-radius: 10px;
             margin-bottom: 8px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             border: 1px solid #1a1a1a;
         }
 
-        .item-name { font-weight: 600; font-size: 0.9rem; display: block; }
-        .item-meta { font-size: 0.7rem; color: var(--text-dim); }
-        .item-price { font-weight: bold; font-size: 0.9rem; margin-right: 5px; }
-        
-        .action-btns {
+        .item-top {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
             align-items: center;
         }
+
+        .item-name { font-weight: 600; font-size: 0.9rem; display: block; }
+        .item-meta { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px;}
+        .item-price { font-weight: bold; font-size: 0.9rem; margin-right: 5px; }
         
-        .icon-btn { 
-            background: none; 
-            border: none; 
-            font-size: 1.1rem; 
-            padding: 5px;
+        .badge {
+            font-size: 0.6rem;
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #ccc;
+            margin-left: 5px;
+        }
+        .badge-tax { background: var(--success); color: white; }
+
+        .item-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #222;
         }
         
+        .action-btns { display: flex; gap: 15px; }
+        .icon-btn { background: none; border: none; font-size: 1.1rem; padding: 5px; }
         .edit-btn { color: var(--edit); }
         .del-btn { color: var(--danger); }
+        .file-btn { 
+            background: #262626; color: white; border: 1px solid #444; 
+            font-size: 0.7rem; padding: 5px 10px; border-radius: 6px; 
+        }
 
         /* Print Settings */
         @media print {
             body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
             #view-list { display: block !important; }
-            .btn, .filter-section, .action-btns, header, .btn-nav { display: none !important; }
+            .btn, .filter-section, .item-actions, header, .btn-nav { display: none !important; }
             .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; }
             .item-meta { color: #555 !important; }
+            .badge { border: 1px solid #999; color: black; background: none; }
             .stat-card { background: white !important; border: 1px solid #ccc !important; color: black !important; }
         }
     </style>
@@ -283,12 +328,25 @@
                     <option value="Sonstiges">Sonstiges</option>
                 </select>
             </div>
+            
+            <div class="checkbox-row" style="margin-bottom: 10px;">
+                <input type="checkbox" id="tax-relevant" checked>
+                <label for="tax-relevant" style="margin:0; font-weight:bold; color:white;">Für Steuer relevant</label>
+            </div>
+
+            <div class="input-row">
+                <label>Beleg / Rechnung (optional)</label>
+                <div class="file-input-wrapper">
+                    <span id="file-label">📎 Datei oder Foto auswählen...</span>
+                    <input type="file" id="receipt-file" accept="image/*,application/pdf" onchange="updateFileLabel()">
+                </div>
+            </div>
+
             <div class="checkbox-row">
                 <input type="checkbox" id="recurring" onchange="document.getElementById('months-container').style.display = this.checked ? 'block' : 'none'">
                 <label for="recurring" style="margin:0">Wiederkehrend aktivieren</label>
             </div>
             
-            <!-- Verstecktes Menü für die Monate -->
             <div id="months-container" style="display: none; padding-top: 10px; border-top: 1px solid #222; margin-top: 10px;">
                 <label>In welchen Monaten eintragen?</label>
                 <div class="months-grid">
@@ -314,7 +372,7 @@
         <button class="btn btn-nav" onclick="showView('view-list')">Liste & Export →</button>
         
         <div style="margin-top: auto; padding-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button class="btn btn-action" onclick="backup()">Backup (JSON)</button>
+            <button class="btn btn-action" onclick="backup()">Backup (Datenbank)</button>
             <button class="btn btn-action" onclick="document.getElementById('imp').click()">Laden</button>
         </div>
     </div>
@@ -328,13 +386,19 @@
         </header>
 
         <div class="filter-section">
-            <div>
-                <label>Von</label>
-                <input type="date" id="filter-from" onchange="render()">
+            <div class="filter-grid">
+                <div>
+                    <label>Von</label>
+                    <input type="date" id="filter-from" onchange="render()">
+                </div>
+                <div>
+                    <label>Bis</label>
+                    <input type="date" id="filter-to" onchange="render()">
+                </div>
             </div>
-            <div>
-                <label>Bis</label>
-                <input type="date" id="filter-to" onchange="render()">
+            <div class="checkbox-row" style="margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">
+                <input type="checkbox" id="filter-tax" checked onchange="render()">
+                <label for="filter-tax" style="margin:0; color:white;">Nur steuerrelevante Posten anzeigen</label>
             </div>
         </div>
 
@@ -353,8 +417,85 @@
         let recurringItems = JSON.parse(localStorage.getItem('recurringItems')) || [];
         let lastRecurringCheck = localStorage.getItem('lastCheck') || "";
 
+        // --- DATENBANK FÜR DATEIEN (IndexedDB) ---
+        let db;
+        const dbReq = indexedDB.open("SpesenFilesDB", 1);
+        dbReq.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if(!db.objectStoreNames.contains('files')) {
+                db.createObjectStore('files');
+            }
+        };
+        dbReq.onsuccess = (e) => db = e.target.result;
+
+        function saveFileToDB(id, dataUrl) {
+            if(!db) return;
+            const tx = db.transaction('files', 'readwrite');
+            tx.objectStore('files').put(dataUrl, id);
+        }
+
+        // --- NEUE ICLOUD SPEICHER / TEILEN FUNKTION ---
+        async function downloadFileFromDB(id, fileName) {
+            if(!db) return alert("Datenbank nicht bereit.");
+            const tx = db.transaction('files', 'readonly');
+            const req = tx.objectStore('files').get(id);
+            req.onsuccess = async () => {
+                const dataUrl = req.result;
+                if(dataUrl) {
+                    try {
+                        // Wandle den gespeicherten String (DataURL) in eine echte Datei um
+                        const response = await fetch(dataUrl);
+                        const blob = await response.blob();
+                        const file = new File([blob], fileName || `Beleg_${id}.pdf`, { type: blob.type });
+
+                        // Prüfen, ob das Gerät die native iOS "Teilen"-Funktion unterstützt
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                            await navigator.share({
+                                files: [file],
+                                title: fileName,
+                            });
+                        } else {
+                            // Fallback, falls die native iCloud-Teilen-Funktion nicht verfügbar ist
+                            triggerClassicDownload(dataUrl, fileName || `Beleg_${id}`);
+                        }
+                    } catch (err) {
+                        // Fallback bei Fehlern
+                        triggerClassicDownload(dataUrl, fileName || `Beleg_${id}`);
+                    }
+                } else {
+                    alert("Datei konnte nicht gefunden werden.");
+                }
+            };
+        }
+
+        function triggerClassicDownload(dataUrl, fileName) {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = fileName;
+            a.click();
+        }
+
+        function deleteFileFromDB(id) {
+            if(!db) return;
+            const tx = db.transaction('files', 'readwrite');
+            tx.objectStore('files').delete(id);
+        }
+        // -----------------------------------------
+
         function generateId() {
             return Date.now().toString() + Math.random().toString(36).substring(2, 9);
+        }
+
+        function updateFileLabel() {
+            const input = document.getElementById('receipt-file');
+            const label = document.getElementById('file-label');
+            if(input.files.length > 0) {
+                label.innerText = "📎 " + input.files[0].name;
+                label.style.color = "#fff";
+            } else {
+                label.innerText = "📎 Datei oder Foto auswählen...";
+                label.style.color = "var(--text-dim)";
+            }
         }
 
         function toggleAllMonths() {
@@ -363,7 +504,6 @@
             checkboxes.forEach(cb => cb.checked = !allChecked);
         }
 
-        // Automatische Prüfung auf neue Monate für wiederkehrende Kosten
         function checkRecurring() {
             const now = new Date();
             const currentMonthKey = `${now.getFullYear()}-${now.getMonth()}`;
@@ -372,10 +512,8 @@
                 const currentMonthIndex = now.getMonth();
 
                 recurringItems.forEach(item => {
-                    // Falls "months" in alten Backups nicht existiert, nimm alle Monate an
                     const activeMonths = item.months || [0,1,2,3,4,5,6,7,8,9,10,11];
 
-                    // Nur eintragen, wenn der aktuelle Monat in der Vorlage markiert ist
                     if (activeMonths.includes(currentMonthIndex)) {
                         const alreadyAdded = expenses.find(e => 
                             e.desc === item.desc && 
@@ -392,7 +530,8 @@
                                 amount: item.amount,
                                 category: item.category,
                                 date: new Date().toISOString(),
-                                isAuto: true
+                                isAuto: true,
+                                taxRelevant: item.taxRelevant !== false 
                             });
                         }
                     }
@@ -413,15 +552,36 @@
             localStorage.setItem('recurringItems', JSON.stringify(recurringItems));
         }
 
-        function addExpense() {
+        async function addExpense() {
             const desc = document.getElementById('desc').value;
             const amount = document.getElementById('amount').value;
             const category = document.getElementById('category').value;
             const isRecurring = document.getElementById('recurring').checked;
+            const isTaxRelevant = document.getElementById('tax-relevant').checked;
+            const fileInput = document.getElementById('receipt-file');
 
             if(!desc || !amount) return alert("Bitte Bezeichnung und Betrag ausfüllen!");
 
+            let hasFile = false;
+            let fileName = "";
+            let fileDataUrl = null;
+
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                hasFile = true;
+                fileName = file.name;
+                
+                fileDataUrl = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
             let selectedMonths = [];
+            const currentMonthIndex = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+
             if (isRecurring) {
                 document.querySelectorAll('.month-checkbox:checked').forEach(cb => {
                     selectedMonths.push(parseInt(cb.value));
@@ -429,29 +589,55 @@
                 if (selectedMonths.length === 0) {
                     return alert("Bitte wähle mindestens einen Monat für die Wiederholung aus.");
                 }
+                
+                recurringItems.push({ desc, amount, category, months: selectedMonths, taxRelevant: isTaxRelevant });
+
+                selectedMonths.forEach(monthIndex => {
+                    if (monthIndex <= currentMonthIndex) {
+                        let entryDate = new Date(currentYear, monthIndex, 1, 12, 0, 0); 
+                        if (monthIndex === currentMonthIndex) entryDate = new Date();
+                        
+                        const newId = generateId();
+                        expenses.push({
+                            id: newId,
+                            desc: desc,
+                            amount: amount,
+                            category: category,
+                            date: entryDate.toISOString(),
+                            isAuto: true,
+                            taxRelevant: isTaxRelevant,
+                            hasFile: hasFile,
+                            fileName: fileName
+                        });
+                        
+                        if(hasFile && fileDataUrl) saveFileToDB(newId, fileDataUrl);
+                    }
+                });
+            } else {
+                const newId = generateId();
+                expenses.push({ 
+                    id: newId, 
+                    desc, 
+                    amount, 
+                    category, 
+                    date: new Date().toISOString(),
+                    isAuto: false,
+                    taxRelevant: isTaxRelevant,
+                    hasFile: hasFile,
+                    fileName: fileName
+                });
+
+                if(hasFile && fileDataUrl) saveFileToDB(newId, fileDataUrl);
             }
 
-            const newItem = { 
-                id: generateId(), 
-                desc, 
-                amount, 
-                category, 
-                date: new Date().toISOString() 
-            };
-            
-            expenses.push(newItem);
-            
-            if (isRecurring) {
-                // Vorlage inklusive der gewählten Monate speichern
-                recurringItems.push({ desc, amount, category, months: selectedMonths });
-            }
-
-            // Formular zurücksetzen
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
             document.getElementById('recurring').checked = false;
+            document.getElementById('tax-relevant').checked = true;
             document.querySelectorAll('.month-checkbox').forEach(cb => cb.checked = false);
             document.getElementById('months-container').style.display = 'none';
+            fileInput.value = '';
+            updateFileLabel();
             
             save();
             render();
@@ -462,31 +648,44 @@
             const container = document.getElementById('list-container');
             const fromDate = document.getElementById('filter-from').value;
             const toDate = document.getElementById('filter-to').value;
+            const taxOnly = document.getElementById('filter-tax').checked;
             
             container.innerHTML = '';
             let total = 0;
 
             let filtered = expenses.sort((a,b) => new Date(b.date) - new Date(a.date));
+            
             if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
             if (toDate) {
                 let end = new Date(toDate);
                 end.setHours(23,59,59);
                 filtered = filtered.filter(e => new Date(e.date) <= end);
             }
+            
+            if (taxOnly) {
+                filtered = filtered.filter(e => e.taxRelevant !== false);
+            }
 
             filtered.forEach(item => {
                 total += parseFloat(item.amount);
                 if(!item.id) item.id = generateId(); 
+                
+                const isTax = item.taxRelevant !== false;
 
                 const div = document.createElement('div');
                 div.className = 'item';
                 div.innerHTML = `
-                    <div>
-                        <span class="item-name">${item.desc} ${item.isAuto ? '🔄' : ''}</span>
-                        <span class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</span>
-                    </div>
-                    <div style="display:flex; align-items:center;">
+                    <div class="item-top">
+                        <div>
+                            <span class="item-name">${item.desc} ${item.isAuto ? '🔄' : ''} ${isTax ? '<span class="badge badge-tax">Steuer</span>' : '<span class="badge">Privat</span>'}</span>
+                            <div class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</div>
+                        </div>
                         <span class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
+                    </div>
+                    <div class="item-actions">
+                        <div>
+                            ${item.hasFile ? `<button class="file-btn" onclick="downloadFileFromDB('${item.id}', '${item.fileName}')">📎 Beleg in iCloud sichern</button>` : ''}
+                        </div>
                         <div class="action-btns">
                             <button class="icon-btn edit-btn" onclick="editExpense('${item.id}')">✎</button>
                             <button class="icon-btn del-btn" onclick="removeExpense('${item.id}')">✕</button>
@@ -521,6 +720,7 @@
         function removeExpense(id) {
             if(confirm("Diesen Eintrag wirklich löschen?")) {
                 expenses = expenses.filter(e => e.id !== id);
+                deleteFileFromDB(id);
                 save();
                 render();
             }
@@ -529,6 +729,7 @@
         function exportCSV() {
             const fromDate = document.getElementById('filter-from').value;
             const toDate = document.getElementById('filter-to').value;
+            const taxOnly = document.getElementById('filter-tax').checked;
             
             let filtered = expenses;
             if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
@@ -537,16 +738,19 @@
                 end.setHours(23,59,59);
                 filtered = filtered.filter(e => new Date(e.date) <= end);
             }
+            if (taxOnly) filtered = filtered.filter(e => e.taxRelevant !== false);
 
-            let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Betrag\n";
+            let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Betrag;Steuerrelevant;BelegVorhanden\n";
             filtered.forEach(e => {
-                csv += `${new Date(e.date).toLocaleDateString('de-DE')};${e.desc};${e.category};${e.amount.replace('.', ',')}\n`;
+                const isTax = e.taxRelevant !== false ? "Ja" : "Nein";
+                const hasReceipt = e.hasFile ? "Ja" : "Nein";
+                csv += `${new Date(e.date).toLocaleDateString('de-DE')};${e.desc};${e.category};${e.amount.replace('.', ',')};${isTax};${hasReceipt}\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `Export_Steuer_${fromDate||'Start'}_bis_${toDate||'Ende'}.csv`;
+            a.download = `Export_Spesen_${fromDate||'Start'}_bis_${toDate||'Ende'}.csv`;
             a.click();
         }
 
