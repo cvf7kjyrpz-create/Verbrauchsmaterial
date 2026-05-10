@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Business Spesen</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Spesen">
+    
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --border-radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: env(safe-area-inset-top) 16px 40px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 20px 0;
+            color: var(--accent-color);
+            letter-spacing: -0.025em;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background-color: #0f172a;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .btn:active {
+            opacity: 0.7;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: #0f172a;
+        }
+
+        .btn-secondary {
+            background-color: #334155;
+            color: white;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #334155;
+            color: white;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            flex: 1;
+            margin: 0 5px;
+            text-align: center;
+        }
+
+        .stat-val {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        .list-container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .expense-item {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .expense-info .title {
+            font-weight: 600;
+            display: block;
+        }
+
+        .expense-info .meta {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .expense-amount {
+            text-align: right;
+        }
+
+        .amount-val {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .delete-btn {
+            color: var(--danger-color);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        /* Print Style for PDF */
+        @media print {
+            .btn, .card, .actions-grid { display: none !important; }
+            body { background: white; color: black; padding: 20px; }
+            .expense-item { border-bottom: 1px solid #ccc; background: white; color: black; }
+            .amount-val { color: black; }
+            .stat-val { color: black; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Business Spesen</h1>
+
+    <div class="stats">
+        <div class="stat-box">
+            <span class="stat-label">Gesamt</span>
+            <span class="stat-val" id="total-amount">0,00 €</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Einträge</span>
+            <span class="stat-val" id="total-count" style="color: white;">0</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="input-group">
+            <label>Was wurde gekauft?</label>
+            <input type="text" id="desc" placeholder="z.B. Klebeband, Porto..." autocomplete="off">
+        </div>
+        <div class="input-group">
+            <label>Betrag in €</label>
+            <input type="number" id="amount" step="0.01" placeholder="0,00" inputmode="decimal">
+        </div>
+        <div class="input-group">
+            <label>Kategorie</label>
+            <select id="category">
+                <option value="Büromaterial">Büromaterial</option>
+                <option value="Werkzeug">Werkzeug</option>
+                <option value="Fahrtkosten">Fahrtkosten</option>
+                <option value="Sonstiges">Sonstiges</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="addExpense()">Eintrag speichern</button>
+    </div>
+
+    <div class="list-container" id="expense-list">
+        </div>
+
+    <div class="actions-grid">
+        <button class="btn btn-secondary" onclick="exportPDF()">PDF Export</button>
+        <button class="btn btn-secondary" onclick="exportCSV()">CSV (Steuer)</button>
+        <button class="btn btn-outline" onclick="backupData()">Backup (JSON)</button>
+        <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">Restore</button>
+    </div>
+
+    <input type="file" id="importFile" style="display:none" onchange="restoreData(event)">
+
+    <script>
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+        function render() {
+            const list = document.getElementById('expense-list');
+            const totalEl = document.getElementById('total-amount');
+            const countEl = document.getElementById('total-count');
+            
+            list.innerHTML = '';
+            let total = 0;
+
+            expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            expenses.forEach((item, index) => {
+                total += parseFloat(item.amount);
+                const div = document.createElement('div');
+                div.className = 'expense-item';
+                div.innerHTML = `
+                    <div class="expense-info">
+                        <span class="title">${item.desc}</span>
+                        <span class="meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</span>
+                    </div>
+                    <div class="expense-amount">
+                        <span class="amount-val">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
+                        <button class="delete-btn" onclick="deleteExpense(${index})">✕</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+
+            totalEl.innerText = total.toFixed(2).replace('.', ',') + ' €';
+            countEl.innerText = expenses.length;
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+
+        function addExpense() {
+            const desc = document.getElementById('desc').value;
+            const amount = document.getElementById('amount').value;
+            const category = document.getElementById('category').value;
+
+            if(!desc || !amount) {
+                alert("Bitte Beschreibung und Betrag eingeben.");
+                return;
+            }
+
+            const item = {
+                desc,
+                amount,
+                category,
+                date: new Date().toISOString()
+            };
+
+            expenses.push(item);
+            document.getElementById('desc').value = '';
+            document.getElementById('amount').value = '';
+            render();
+        }
+
+        function deleteExpense(index) {
+            if(confirm("Eintrag löschen?")) {
+                expenses.splice(index, 1);
+                render();
+            }
+        }
+
+        // PDF Export über Druck-Funktion (einfachste iOS Lösung)
+        function exportPDF() {
+            window.print();
+        }
+
+        // CSV Export für Steuerberater (Excel kompatibel)
+        function exportCSV() {
+            let csv = "\uFEFFDatum;Beschreibung;Kategorie;Betrag\n";
+            expenses.forEach(item => {
+                const date = new Date(item.date).toLocaleDateString('de-DE');
+                csv += `${date};${item.desc};${item.category};${item.amount.replace('.', ',')}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Spesen_Export_${new Date().toLocaleDateString('de-DE')}.csv`;
+            link.click();
+        }
+
+        // Backup als JSON Datei
+        function backupData() {
+            const data = JSON.stringify(expenses);
+            const blob = new Blob([data], { type: 'application/json' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `spesen_backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // Restore von JSON Datei
+        function restoreData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if(Array.isArray(imported)) {
+                        expenses = imported;
+                        render();
+                        alert("Backup erfolgreich geladen!");
+                    }
+                } catch(err) {
+                    alert("Fehler beim Laden des Backups.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Initialer Render
+        render();
+    </script>
+</body>
+</html>
