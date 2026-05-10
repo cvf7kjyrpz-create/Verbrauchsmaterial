@@ -137,6 +137,39 @@
             height: 20px;
         }
 
+        /* Months Grid Styling */
+        .months-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .month-checkbox {
+            display: none; /* Versteckt die echte Checkbox */
+        }
+        
+        .month-label {
+            background: var(--input-bg);
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .month-checkbox:checked + .month-label {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+            font-weight: bold;
+        }
+
         .btn {
             width: 100%;
             padding: 14px;
@@ -251,9 +284,30 @@
                 </select>
             </div>
             <div class="checkbox-row">
-                <input type="checkbox" id="recurring">
-                <label for="recurring" style="margin:0">Monatlich wiederkehrend</label>
+                <input type="checkbox" id="recurring" onchange="document.getElementById('months-container').style.display = this.checked ? 'block' : 'none'">
+                <label for="recurring" style="margin:0">Wiederkehrend aktivieren</label>
             </div>
+            
+            <!-- Verstecktes Menü für die Monate -->
+            <div id="months-container" style="display: none; padding-top: 10px; border-top: 1px solid #222; margin-top: 10px;">
+                <label>In welchen Monaten eintragen?</label>
+                <div class="months-grid">
+                    <label><input type="checkbox" class="month-checkbox" value="0"><div class="month-label">Jan</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="1"><div class="month-label">Feb</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="2"><div class="month-label">Mär</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="3"><div class="month-label">Apr</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="4"><div class="month-label">Mai</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="5"><div class="month-label">Jun</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="6"><div class="month-label">Jul</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="7"><div class="month-label">Aug</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="8"><div class="month-label">Sep</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="9"><div class="month-label">Okt</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="10"><div class="month-label">Nov</div></label>
+                    <label><input type="checkbox" class="month-checkbox" value="11"><div class="month-label">Dez</div></label>
+                </div>
+                <button class="btn btn-action" style="margin-top: 5px; background: transparent; border-color: #444;" onclick="toggleAllMonths()">Alle markieren / aufheben</button>
+            </div>
+
             <button class="btn btn-add" onclick="addExpense()">Speichern</button>
         </div>
 
@@ -299,9 +353,14 @@
         let recurringItems = JSON.parse(localStorage.getItem('recurringItems')) || [];
         let lastRecurringCheck = localStorage.getItem('lastCheck') || "";
 
-        // Eindeutige ID generieren (verhindert Fehler beim Löschen/Bearbeiten im gefilterten Zustand)
         function generateId() {
             return Date.now().toString() + Math.random().toString(36).substring(2, 9);
+        }
+
+        function toggleAllMonths() {
+            const checkboxes = document.querySelectorAll('.month-checkbox');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            checkboxes.forEach(cb => cb.checked = !allChecked);
         }
 
         // Automatische Prüfung auf neue Monate für wiederkehrende Kosten
@@ -310,25 +369,32 @@
             const currentMonthKey = `${now.getFullYear()}-${now.getMonth()}`;
             
             if (lastRecurringCheck !== currentMonthKey) {
-                recurringItems.forEach(item => {
-                    // Prüfen, ob für diesen Monat schon ein Eintrag existiert
-                    const alreadyAdded = expenses.find(e => 
-                        e.desc === item.desc && 
-                        e.category === item.category &&
-                        new Date(e.date).getMonth() === now.getMonth() &&
-                        new Date(e.date).getFullYear() === now.getFullYear() &&
-                        e.isAuto === true
-                    );
+                const currentMonthIndex = now.getMonth();
 
-                    if (!alreadyAdded) {
-                        expenses.push({
-                            id: generateId(),
-                            desc: item.desc,
-                            amount: item.amount,
-                            category: item.category,
-                            date: new Date().toISOString(),
-                            isAuto: true
-                        });
+                recurringItems.forEach(item => {
+                    // Falls "months" in alten Backups nicht existiert, nimm alle Monate an
+                    const activeMonths = item.months || [0,1,2,3,4,5,6,7,8,9,10,11];
+
+                    // Nur eintragen, wenn der aktuelle Monat in der Vorlage markiert ist
+                    if (activeMonths.includes(currentMonthIndex)) {
+                        const alreadyAdded = expenses.find(e => 
+                            e.desc === item.desc && 
+                            e.category === item.category &&
+                            new Date(e.date).getMonth() === currentMonthIndex &&
+                            new Date(e.date).getFullYear() === now.getFullYear() &&
+                            e.isAuto === true
+                        );
+
+                        if (!alreadyAdded) {
+                            expenses.push({
+                                id: generateId(),
+                                desc: item.desc,
+                                amount: item.amount,
+                                category: item.category,
+                                date: new Date().toISOString(),
+                                isAuto: true
+                            });
+                        }
                     }
                 });
                 localStorage.setItem('lastCheck', currentMonthKey);
@@ -353,7 +419,17 @@
             const category = document.getElementById('category').value;
             const isRecurring = document.getElementById('recurring').checked;
 
-            if(!desc || !amount) return alert("Bitte alles ausfüllen");
+            if(!desc || !amount) return alert("Bitte Bezeichnung und Betrag ausfüllen!");
+
+            let selectedMonths = [];
+            if (isRecurring) {
+                document.querySelectorAll('.month-checkbox:checked').forEach(cb => {
+                    selectedMonths.push(parseInt(cb.value));
+                });
+                if (selectedMonths.length === 0) {
+                    return alert("Bitte wähle mindestens einen Monat für die Wiederholung aus.");
+                }
+            }
 
             const newItem = { 
                 id: generateId(), 
@@ -366,13 +442,16 @@
             expenses.push(newItem);
             
             if (isRecurring) {
-                // Speichert die Vorlage, ohne die ID (damit sie jeden Monat neu generiert werden kann)
-                recurringItems.push({ desc, amount, category });
+                // Vorlage inklusive der gewählten Monate speichern
+                recurringItems.push({ desc, amount, category, months: selectedMonths });
             }
 
+            // Formular zurücksetzen
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
             document.getElementById('recurring').checked = false;
+            document.querySelectorAll('.month-checkbox').forEach(cb => cb.checked = false);
+            document.getElementById('months-container').style.display = 'none';
             
             save();
             render();
@@ -387,7 +466,6 @@
             container.innerHTML = '';
             let total = 0;
 
-            // Filtern
             let filtered = expenses.sort((a,b) => new Date(b.date) - new Date(a.date));
             if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
             if (toDate) {
@@ -398,8 +476,6 @@
 
             filtered.forEach(item => {
                 total += parseFloat(item.amount);
-                
-                // Fallback, falls alte Einträge keine ID haben
                 if(!item.id) item.id = generateId(); 
 
                 const div = document.createElement('div');
@@ -431,7 +507,7 @@
             let newVal = prompt(`Neuen Betrag für '${expense.desc}' eingeben:`, expense.amount);
             
             if (newVal !== null && newVal.trim() !== "") {
-                newVal = newVal.replace(',', '.'); // Komma in Punkt umwandeln für Berechnung
+                newVal = newVal.replace(',', '.'); 
                 if (!isNaN(newVal)) {
                     expense.amount = newVal;
                     save();
@@ -493,7 +569,6 @@
                     expenses = data.expenses || [];
                     recurringItems = data.recurringItems || [];
                     
-                    // Alten Daten eine ID geben, falls sie aus einem alten Backup stammen
                     expenses.forEach(item => { if(!item.id) item.id = generateId(); });
                     
                     save();
@@ -506,7 +581,6 @@
             reader.readAsText(file);
         }
 
-        // App Start
         checkRecurring();
         render();
     </script>
