@@ -40,7 +40,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom) 12px;
+            padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom) 10px;
         }
 
         .view {
@@ -55,7 +55,6 @@
         }
 
         header {
-            text-align: center;
             margin-bottom: 10px;
         }
 
@@ -65,44 +64,47 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-dim);
+            text-align: center;
         }
 
         /* Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-bottom: 6px;
         }
 
         .stat-card {
             background: var(--card-bg);
-            padding: 8px;
+            padding: 6px;
             border-radius: var(--border-radius);
             text-align: center;
             border: 1px solid var(--border-color);
         }
 
         .stat-label {
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
         .stat-val {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: bold;
         }
 
         /* Form */
         .form-container {
             background: var(--card-bg);
-            padding: 12px;
+            padding: 10px;
             border-radius: var(--border-radius);
             border: 1px solid var(--border-color);
+            overflow-y: auto;
+            flex: 1;
         }
 
         .input-row {
@@ -126,7 +128,7 @@
             border: 1px solid var(--border-color);
             background: var(--input-bg);
             color: white;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             outline: none;
             appearance: none;
         }
@@ -230,13 +232,13 @@
         .btn-action { background: #1a1a1a; color: #fff; border: 1px solid var(--border-color); font-size: 0.7rem; padding: 8px; }
 
         /* List View */
-        #view-list { overflow-y: auto; }
+        #view-list { overflow-y: hidden; } /* Managed by inner container */
         
         .filter-section {
             background: var(--card-bg);
-            padding: 10px;
+            padding: 8px;
             border-radius: var(--border-radius);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border: 1px solid var(--border-color);
         }
 
@@ -244,37 +246,38 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px; 
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .expense-list-container {
             flex: 1;
-            padding-bottom: 20px;
+            padding-bottom: 10px;
+            overflow-y: auto;
         }
 
-        /* --- Farblich hervorgehobener Monatstrenner (Grün) --- */
+        /* --- Farblich hervorgehobener Monatstrenner (Grün) - Kompakt --- */
         .month-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 10px;
-            margin-top: 14px;
-            margin-bottom: 6px;
-            background: rgba(16, 185, 129, 0.15); /* Sanftes Grün im Hintergrund */
-            border-left: 4px solid var(--success); /* Grüne Linie links */
+            padding: 4px 8px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            background: rgba(16, 185, 129, 0.15); 
+            border-left: 3px solid var(--success); 
             border-radius: 4px;
         }
         
         .month-header-title {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #6ee7b7; /* Helles Grün */
+            color: #6ee7b7; 
         }
         
         .month-header-sum {
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             font-weight: bold;
             color: #ffffff; 
         }
@@ -282,9 +285,9 @@
         /* --- Ultra Kompakte Item Liste --- */
         .item {
             background: var(--card-bg);
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: 6px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -296,7 +299,7 @@
             flex-direction: column;
             justify-content: center;
             flex: 1;
-            padding-right: 8px;
+            padding-right: 6px;
         }
 
         .item-right {
@@ -308,48 +311,47 @@
 
         .item-name { 
             font-weight: 600; 
-            font-size: 0.75rem; 
+            font-size: 0.65rem; 
             display: flex; 
             align-items: center; 
             flex-wrap: wrap;
-            gap: 4px; 
+            gap: 3px; 
         }
 
         .item-meta { 
-            font-size: 0.55rem; 
+            font-size: 0.5rem; 
             color: var(--text-dim); 
             margin-top: 1px;
         }
 
         .item-price { 
             font-weight: bold; 
-            font-size: 0.75rem; 
-            margin-bottom: 2px; 
+            font-size: 0.7rem; 
+            margin-bottom: 1px; 
         }
 
         .item-actions-compact {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
         }
         
         .badge {
-            font-size: 0.45rem;
+            font-size: 0.4rem;
             background: #222;
-            padding: 2px 4px;
-            border-radius: 3px;
+            padding: 1px 3px;
+            border-radius: 2px;
             color: #aaa;
             text-transform: uppercase;
         }
-        /* Steuer Badge ist jetzt Blau */
         .badge-tax { 
             background: rgba(59, 130, 246, 0.2); 
             color: #60a5fa; 
             border: 1px solid rgba(59, 130, 246, 0.3); 
         }
 
-        /* Icons dezent grau */
-        .icon-btn { background: none; border: none; font-size: 0.85rem; padding: 2px; color: #888888; cursor: pointer; }
+        /* Icons extrem dezent & klein */
+        .icon-btn { background: none; border: none; font-size: 0.75rem; padding: 2px; color: #555555; cursor: pointer; }
 
         /* Vorschau, Edit & Export Modals */
         .modal-overlay {
@@ -361,7 +363,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
+            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
         }
         
         #preview-content {
@@ -383,8 +385,8 @@
             width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
+            margin-top: 15px;
             padding-bottom: 10px;
         }
 
@@ -401,17 +403,17 @@
 
         .bottom-actions {
             margin-top: auto; 
-            padding-bottom: 10px; 
+            padding-top: 5px; 
             display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 8px;
+            grid-template-columns: 1fr 1fr; 
+            gap: 6px;
         }
 
         /* Print Settings */
         @media print {
             body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
-            #view-list { display: block !important; }
+            #view-list { display: flex !important; }
             .btn, .filter-section, .item-actions-compact, header, .btn-nav, .bottom-actions, .modal-overlay, .stats-grid { display: none !important; }
             .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; padding: 5px; page-break-inside: avoid; }
             .month-header { background: #eeeeee !important; border-left: 4px solid #000 !important; border-bottom: none !important; color: black !important; margin-top: 15px; padding: 8px; }
@@ -425,9 +427,69 @@
 </head>
 <body>
 
-    <!-- HOME: EINGABE -->
-    <div id="view-home" class="view active">
-        <header><h1>Ausgabe Erfassen</h1></header>
+    <!-- ANSICHT 1: ÜBERSICHT (Startseite) -->
+    <div id="view-list" class="view active">
+        <header style="display:flex; justify-content: space-between; align-items:center;">
+            <h1 style="text-align: left;">Spesen Übersicht</h1>
+            <button onclick="showView('view-home')" class="btn-action" style="width: auto; padding: 5px 12px; border-radius: 6px; background: white; color: black; font-weight: bold; font-size: 0.75rem;">+ NEUER EINTRAG</button>
+        </header>
+
+        <!-- NEU: Gesamtkosten Feld ganz oben -->
+        <div class="stats-grid" style="grid-template-columns: 1fr; margin-bottom: 4px;">
+            <div class="stat-card" style="border-color: #555;">
+                <span class="stat-label">Gesamtkosten (Steuer + Privat) - <span id="total-all-count">0</span> Einträge</span>
+                <span class="stat-val" id="total-all-val" style="font-size: 1rem;">0,00 €</span>
+            </div>
+        </div>
+
+        <!-- GETRENNTE STATISTIKEN (Steuer vs Privat) -->
+        <div class="stats-grid">
+            <div class="stat-card" style="border-color: rgba(59, 130, 246, 0.4);">
+                <span class="stat-label" style="color: #60a5fa;">Steuerrelevant (<span id="tax-count">0</span>)</span>
+                <span class="stat-val" id="tax-val">0,00 €</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Privat (<span id="priv-count">0</span>)</span>
+                <span class="stat-val" id="priv-val" style="color: #aaa;">0,00 €</span>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div>
+                    <label>Von</label>
+                    <input type="date" id="filter-from" onchange="render()">
+                </div>
+                <div>
+                    <label>Bis</label>
+                    <input type="date" id="filter-to" onchange="render()">
+                </div>
+            </div>
+            <div class="checkbox-row" style="margin-top: 2px; border-top: 1px solid var(--border-color); padding-top: 4px;">
+                <!-- STANDARDMÄSSIG DEAKTIVIERT -->
+                <input type="checkbox" id="filter-tax" onchange="render()">
+                <label for="filter-tax" style="color:white; font-size:0.7rem;">Nur steuerrelevante anzeigen</label>
+            </div>
+        </div>
+
+        <div id="list-container" class="expense-list-container"></div>
+
+        <div class="bottom-actions">
+            <!-- EXPORT BUTTON VOLLER BREITE -->
+            <button class="btn btn-action" style="grid-column: span 2; font-size: 0.8rem; padding: 10px; background: #222;" onclick="openExportModal()">Export Auswahl (PDF / CSV)</button>
+            <!-- BACKUP BUTTONS -->
+            <button class="btn btn-action" onclick="backup()">Backup sichern</button>
+            <button class="btn btn-action" onclick="document.getElementById('imp').click()">Backup laden</button>
+        </div>
+    </div>
+
+    <!-- ANSICHT 2: NEUER EINTRAG (Formular) -->
+    <div id="view-home" class="view">
+        <header style="display:flex; justify-content: space-between; align-items:center;">
+            <button onclick="showView('view-list')" style="background:none; border:none; color:var(--text-dim); font-size:0.8rem; cursor:pointer;">← Abbrechen</button>
+            <h1>Neuer Eintrag</h1>
+            <div style="width:70px"></div>
+        </header>
 
         <div class="form-container">
             <div class="input-row">
@@ -498,62 +560,8 @@
                 </div>
                 <button class="btn btn-action" style="margin-top: 2px; background: transparent; border-color: #333;" onclick="toggleAllMonths()">Alle markieren / aufheben</button>
             </div>
-
-            <button class="btn btn-add" onclick="addExpense()">Speichern</button>
         </div>
-
-        <button class="btn btn-nav" onclick="showView('view-list')">Liste & Export →</button>
-        
-        <div class="bottom-actions" style="grid-template-columns: 1fr 1fr; margin-top: 15px;">
-            <button class="btn btn-action" onclick="backup()">Backup (Daten)</button>
-            <button class="btn btn-action" onclick="document.getElementById('imp').click()">Laden</button>
-        </div>
-    </div>
-
-    <!-- LISTE & FILTER -->
-    <div id="view-list" class="view">
-        <header style="display:flex; justify-content: space-between; align-items:center;">
-            <button onclick="showView('view-home')" style="background:none; border:none; color:white; font-size:0.8rem; cursor:pointer;">← Zurück</button>
-            <h1>Übersicht</h1>
-            <div style="width:50px"></div>
-        </header>
-
-        <!-- NEU: GETRENNTE STATISTIKEN (Steuer vs Privat) -->
-        <div class="stats-grid" style="margin-bottom: 8px;">
-            <div class="stat-card" style="border-color: rgba(59, 130, 246, 0.4);">
-                <span class="stat-label" style="color: #60a5fa;">Steuerrelevant (<span id="tax-count">0</span>)</span>
-                <span class="stat-val" id="tax-val">0,00 €</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Privat (<span id="priv-count">0</span>)</span>
-                <span class="stat-val" id="priv-val" style="color: #aaa;">0,00 €</span>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <div class="filter-grid">
-                <div>
-                    <label>Von</label>
-                    <input type="date" id="filter-from" onchange="render()">
-                </div>
-                <div>
-                    <label>Bis</label>
-                    <input type="date" id="filter-to" onchange="render()">
-                </div>
-            </div>
-            <div class="checkbox-row" style="margin-top: 4px; border-top: 1px solid var(--border-color); padding-top: 6px;">
-                <!-- STANDARDMÄSSIG DEAKTIVIERT -->
-                <input type="checkbox" id="filter-tax" onchange="render()">
-                <label for="filter-tax" style="color:white; font-size:0.75rem;">Nur steuerrelevante anzeigen</label>
-            </div>
-        </div>
-
-        <div id="list-container" class="expense-list-container"></div>
-
-        <div class="bottom-actions">
-            <!-- NEU: Export Auswahl Modal Aufruf -->
-            <button class="btn btn-action" style="font-size: 0.8rem; padding: 12px; background: #222;" onclick="openExportModal()">Export Auswahl (PDF / CSV)</button>
-        </div>
+        <button class="btn btn-add" style="margin-top: 10px;" onclick="addExpense()">Speichern</button>
     </div>
 
     <!-- VORSCHAU MODAL (Bild / PDF) -->
@@ -567,8 +575,8 @@
 
     <!-- EDIT MODAL -->
     <div id="edit-modal" class="modal-overlay">
-        <div class="form-container" style="max-width: 500px; width: 100%;">
-            <h2 style="color:white; margin-bottom:15px; font-size:1.1rem; text-align:center;">Eintrag bearbeiten</h2>
+        <div class="form-container" style="max-width: 500px; width: 100%; max-height: 80vh;">
+            <h2 style="color:white; margin-bottom:15px; font-size:1rem; text-align:center;">Eintrag bearbeiten</h2>
             <input type="hidden" id="edit-id">
             
             <div class="input-row">
@@ -612,13 +620,13 @@
         </div>
     </div>
 
-    <!-- NEU: EXPORT SELECTION MODAL -->
+    <!-- EXPORT SELECTION MODAL -->
     <div id="export-modal" class="modal-overlay">
         <div class="form-container" style="max-width: 500px; width: 100%; max-height: 85vh; display: flex; flex-direction: column;">
-            <h2 style="color:white; margin-bottom:10px; font-size:1rem; text-align:center;">Für Export auswählen</h2>
+            <h2 style="color:white; margin-bottom:10px; font-size:0.9rem; text-align:center; text-transform:uppercase;">Für Export auswählen</h2>
             <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
-                <button class="btn-action" style="width:auto; padding: 6px 12px; border-radius: 4px;" onclick="toggleExportAll(true)">Alle markieren</button>
-                <button class="btn-action" style="width:auto; padding: 6px 12px; border-radius: 4px;" onclick="toggleExportAll(false)">Keine</button>
+                <button class="btn-action" style="width:auto; padding: 4px 10px; border-radius: 4px;" onclick="toggleExportAll(true)">Alle markieren</button>
+                <button class="btn-action" style="width:auto; padding: 4px 10px; border-radius: 4px;" onclick="toggleExportAll(false)">Keine</button>
             </div>
             
             <div id="export-list" style="overflow-y: auto; flex: 1; border: 1px solid #333; border-radius: 6px; padding: 5px; margin-bottom: 15px; background: #0f0f0f;">
@@ -629,7 +637,7 @@
                 <button class="btn btn-add" style="margin-top:0; background: #333; color: white;" onclick="exportSelectedCSV()">Als CSV</button>
                 <button class="btn btn-add" style="margin-top:0; background: #ffffff;" onclick="exportSelectedPDF()">Als PDF</button>
             </div>
-            <button class="btn btn-modal-close" onclick="closeExportModal()">Abbrechen</button>
+            <button class="btn btn-modal-close" style="padding: 10px;" onclick="closeExportModal()">Abbrechen</button>
         </div>
     </div>
 
@@ -861,7 +869,7 @@
         function showView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            render();
+            if(id === 'view-list') render();
         }
 
         function save() {
@@ -979,7 +987,7 @@
             document.getElementById('custom-category').value = '';
             document.getElementById('custom-category-container').style.display = 'none';
             document.getElementById('recurring').checked = false;
-            document.getElementById('tax-relevant').checked = false; // Reset auf nicht angehakt
+            document.getElementById('tax-relevant').checked = false; // Zurücksetzen (Standard aus)
             document.querySelectorAll('.month-checkbox').forEach(cb => cb.checked = false);
             document.getElementById('months-container').style.display = 'none';
             fileInput.value = '';
@@ -987,10 +995,9 @@
             
             save();
             render();
-            alert("Gespeichert!");
+            showView('view-list'); // Direkt zurück zur Übersicht
         }
 
-        // Hilfsfunktion zum Filtern der aktuellen Liste
         function getFilteredItems() {
             const fromDate = document.getElementById('filter-from').value;
             const toDate = document.getElementById('filter-to').value;
@@ -1057,6 +1064,12 @@
             document.getElementById('priv-count').innerText = privCount;
             document.getElementById('priv-val').innerText = privTotal.toFixed(2).replace('.', ',') + ' €';
 
+            // Gesamtkosten
+            const overallTotal = taxTotal + privTotal;
+            const overallCount = taxCount + privCount;
+            document.getElementById('total-all-val').innerText = overallTotal.toFixed(2).replace('.', ',') + ' €';
+            document.getElementById('total-all-count').innerText = overallCount;
+
             const sortedMonthKeys = Object.keys(groupedByMonth).sort().reverse();
 
             sortedMonthKeys.forEach(key => {
@@ -1074,7 +1087,7 @@
                     const isTax = item.taxRelevant !== false;
                     const div = document.createElement('div');
                     div.className = 'item';
-                    div.dataset.id = item.id; // Für selektiven Print wichtig
+                    div.dataset.id = item.id; 
                     
                     div.innerHTML = `
                         <div class="item-left">
@@ -1099,29 +1112,57 @@
             });
         }
 
-        // --- EXPORT AUSWAHL LOGIK ---
+        // --- NEU: ZUSAMMENGEFASSTE EXPORT LOGIK ---
         function openExportModal() {
             const items = getFilteredItems();
             const container = document.getElementById('export-list');
             container.innerHTML = '';
             
             if (items.length === 0) {
-                container.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">Keine Einträge vorhanden.</p>';
-            } else {
-                items.forEach(item => {
-                    const isTax = item.taxRelevant !== false;
-                    container.innerHTML += `
-                        <label style="display:flex; align-items:center; gap:10px; padding: 10px 5px; border-bottom: 1px solid #222;">
-                            <input type="checkbox" class="export-checkbox" value="${item.id}" checked style="width:20px; height:20px; accent-color: white;">
-                            <div style="flex:1; line-height: 1.2;">
-                                <span style="color:white; font-size: 0.85rem; display:block;">${item.desc} (${parseFloat(item.amount).toFixed(2)} €)</span>
-                                <span style="color:#888; font-size: 0.65rem;">${new Date(item.date).toLocaleDateString('de-DE')}</span>
-                            </div>
-                            ${isTax ? '<span style="color:#60a5fa; font-size:0.6rem; text-transform:uppercase;">Steuer</span>' : '<span style="color:#888; font-size:0.6rem; text-transform:uppercase;">Privat</span>'}
-                        </label>
-                    `;
-                });
+                container.innerHTML = '<p style="color:#888; text-align:center; padding:20px; font-size: 0.8rem;">Keine Einträge vorhanden.</p>';
+                document.getElementById('export-modal').style.display = 'flex';
+                return;
             }
+
+            // Gruppieren der identischen Ausgaben
+            const groups = {};
+            items.forEach(item => {
+                // Key = Bezeichnung + Betrag + Kategorie + Steuerrelevant
+                const key = item.desc + '|' + item.amount + '|' + item.category + '|' + item.taxRelevant;
+                if(!groups[key]) {
+                    groups[key] = {
+                        desc: item.desc,
+                        amount: item.amount,
+                        category: item.category,
+                        isTax: item.taxRelevant !== false,
+                        ids: [],
+                        dates: []
+                    };
+                }
+                groups[key].ids.push(item.id);
+                groups[key].dates.push(new Date(item.date).getTime());
+            });
+
+            Object.values(groups).forEach(g => {
+                const minDate = new Date(Math.min(...g.dates)).toLocaleDateString('de-DE');
+                const maxDate = new Date(Math.max(...g.dates)).toLocaleDateString('de-DE');
+                
+                const dateStr = g.ids.length > 1 ? `${minDate} - ${maxDate} (${g.ids.length}x)` : minDate;
+                const totalAmount = (parseFloat(g.amount) * g.ids.length).toFixed(2).replace('.', ',');
+                
+                // STANDARDMÄSSIG ALLE AUSGETRAGEN (kein 'checked' Attribut)
+                container.innerHTML += `
+                    <label style="display:flex; align-items:center; gap:8px; padding: 6px 4px; border-bottom: 1px solid #222;">
+                        <input type="checkbox" class="export-checkbox" data-ids='${JSON.stringify(g.ids)}' style="width:18px; height:18px; accent-color: white;">
+                        <div style="flex:1; line-height: 1.2;">
+                            <span style="color:white; font-size: 0.8rem; display:block;">${g.desc} <span style="color:#aaa;">(${totalAmount} €)</span></span>
+                            <span style="color:#888; font-size: 0.55rem;">${dateStr}</span>
+                        </div>
+                        ${g.isTax ? '<span style="color:#60a5fa; font-size:0.5rem; text-transform:uppercase;">Steuer</span>' : '<span style="color:#888; font-size:0.5rem; text-transform:uppercase;">Privat</span>'}
+                    </label>
+                `;
+            });
+            
             document.getElementById('export-modal').style.display = 'flex';
         }
 
@@ -1134,7 +1175,11 @@
         }
 
         function getSelectedExportIds() {
-            return Array.from(document.querySelectorAll('.export-checkbox:checked')).map(cb => cb.value);
+            let ids = [];
+            document.querySelectorAll('.export-checkbox:checked').forEach(cb => {
+                ids = ids.concat(JSON.parse(cb.getAttribute('data-ids')));
+            });
+            return ids;
         }
 
         function exportSelectedCSV() {
@@ -1194,8 +1239,7 @@
             // Kurz warten, bis Modal weg ist, dann drucken
             setTimeout(() => {
                 window.print();
-                // Danach Liste wieder sauber aufbauen
-                render(); 
+                render(); // Danach Liste wieder sauber aufbauen
             }, 300);
         }
 
@@ -1314,7 +1358,8 @@
         }
 
         checkRecurring();
-        render();
+        // Starte App in der Übersicht
+        showView('view-list');
     </script>
 </body>
 </html>
