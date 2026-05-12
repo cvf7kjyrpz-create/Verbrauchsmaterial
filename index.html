@@ -236,7 +236,7 @@
             background: var(--card-bg);
             padding: 10px;
             border-radius: var(--border-radius);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border: 1px solid var(--border-color);
         }
 
@@ -244,7 +244,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px; 
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .expense-list-container {
@@ -252,82 +252,101 @@
             padding-bottom: 20px;
         }
 
-        /* --- NEU: Monatstrenner --- */
+        /* Monatstrenner Kompakt */
         .month-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 5px 5px 5px;
-            margin-top: 10px;
-            margin-bottom: 8px;
-            border-bottom: 1px solid #444;
+            padding: 10px 4px 4px 4px;
+            margin-top: 5px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #333;
             color: #cccccc;
         }
         
         .month-header-title {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         
         .month-header-sum {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
             color: var(--text-main);
         }
 
+        /* --- Ultra Kompakte Item Liste --- */
         .item {
             background: var(--card-bg);
-            padding: 10px;
-            border-radius: var(--border-radius);
-            margin-bottom: 8px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--border-color);
-        }
-
-        .item-top {
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-bottom: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid var(--border-color);
         }
 
-        .item-name { font-weight: 600; font-size: 0.85rem; display: block; }
-        .item-meta { font-size: 0.65rem; color: var(--text-dim); margin-top: 2px;}
-        .item-price { font-weight: bold; font-size: 0.85rem; margin-right: 5px; }
+        .item-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+            padding-right: 10px;
+        }
+
+        .item-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .item-name { 
+            font-weight: 600; 
+            font-size: 0.8rem; 
+            display: flex; 
+            align-items: center; 
+            flex-wrap: wrap;
+            gap: 4px; 
+        }
+
+        .item-meta { 
+            font-size: 0.6rem; 
+            color: var(--text-dim); 
+            margin-top: 2px;
+        }
+
+        .item-price { 
+            font-weight: bold; 
+            font-size: 0.85rem; 
+            margin-bottom: 4px; 
+        }
+
+        .item-actions-compact {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
         
         .badge {
-            font-size: 0.55rem;
+            font-size: 0.5rem;
             background: #222;
-            padding: 2px 5px;
+            padding: 2px 4px;
             border-radius: 3px;
             color: #aaa;
-            margin-left: 5px;
             text-transform: uppercase;
         }
         .badge-tax { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
 
-        .item-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .action-btns { display: flex; gap: 12px; }
-        .icon-btn { background: none; border: none; font-size: 1rem; padding: 2px 5px; }
+        .icon-btn { background: none; border: none; font-size: 0.95rem; padding: 0; color: white; cursor: pointer; }
         .edit-btn { color: var(--edit); }
         .del-btn { color: var(--danger); }
-        .file-btn { 
-            background: #1a1a1a; color: white; border: 1px solid var(--border-color); 
-            font-size: 0.65rem; padding: 5px 8px; border-radius: 4px; 
-        }
 
-        /* --- NEU: Modal für Bildvorschau --- */
-        #preview-modal {
+        /* Vorschau & Edit Modals */
+        .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -387,9 +406,9 @@
             body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
             #view-list { display: block !important; }
-            .btn, .filter-section, .item-actions, header, .btn-nav, .bottom-actions, #preview-modal { display: none !important; }
-            .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; page-break-inside: avoid; }
-            .month-header { border-bottom: 2px solid black !important; color: black !important; margin-top: 20px; }
+            .btn, .filter-section, .item-actions-compact, header, .btn-nav, .bottom-actions, .modal-overlay { display: none !important; }
+            .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; padding: 5px; page-break-inside: avoid; }
+            .month-header { border-bottom: 2px solid black !important; color: black !important; margin-top: 15px; padding: 5px 0; }
             .month-header-sum { color: black !important; }
             .item-meta { color: #555 !important; }
             .badge { border: 1px solid #999 !important; color: black !important; background: none !important; }
@@ -502,9 +521,9 @@
                     <input type="date" id="filter-to" onchange="render()">
                 </div>
             </div>
-            <div class="checkbox-row" style="margin-top: 8px; border-top: 1px solid var(--border-color); padding-top: 8px;">
+            <div class="checkbox-row" style="margin-top: 4px; border-top: 1px solid var(--border-color); padding-top: 6px;">
                 <input type="checkbox" id="filter-tax" checked onchange="render()">
-                <label for="filter-tax" style="color:white;">Nur steuerrelevante anzeigen</label>
+                <label for="filter-tax" style="color:white; font-size:0.75rem;">Nur steuerrelevante anzeigen</label>
             </div>
         </div>
 
@@ -517,11 +536,52 @@
     </div>
 
     <!-- VORSCHAU MODAL (Bild / PDF) -->
-    <div id="preview-modal">
+    <div id="preview-modal" class="modal-overlay">
         <div id="preview-content"></div>
         <div class="modal-actions">
             <button class="btn btn-modal-close" onclick="closePreviewModal()">Schließen</button>
             <button class="btn btn-modal-share" onclick="shareCurrentPreview()">Teilen / Sichern</button>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="form-container" style="max-width: 500px; width: 100%;">
+            <h2 style="color:white; margin-bottom:15px; font-size:1.1rem; text-align:center;">Eintrag bearbeiten</h2>
+            <input type="hidden" id="edit-id">
+            
+            <div class="input-row">
+                <label>Bezeichnung</label>
+                <input type="text" id="edit-desc">
+            </div>
+            <div class="input-row">
+                <label>Datum</label>
+                <input type="date" id="edit-date">
+            </div>
+            <div class="input-row">
+                <label>Betrag in €</label>
+                <input type="number" id="edit-amount" step="0.01" inputmode="decimal">
+            </div>
+            <div class="input-row">
+                <label>Kategorie</label>
+                <select id="edit-category">
+                    <option value="Internet">Internet</option>
+                    <option value="Telefon">Telefon</option>
+                    <option value="Community">Community</option>
+                    <option value="Büromaterial">Büromaterial</option>
+                    <option value="Werkzeug">Werkzeug</option>
+                    <option value="Sonstiges">Sonstiges</option>
+                </select>
+            </div>
+            <div class="checkbox-row" style="margin-bottom: 15px;">
+                <input type="checkbox" id="edit-tax">
+                <label for="edit-tax" style="color:white;">Für Steuer relevant</label>
+            </div>
+            
+            <div class="modal-actions" style="margin-top:0;">
+                <button class="btn btn-modal-close" onclick="closeEditModal()">Abbrechen</button>
+                <button class="btn btn-add" style="margin-top:0;" onclick="saveEdit()">Speichern</button>
+            </div>
         </div>
     </div>
 
@@ -564,7 +624,7 @@
                     currentPreviewName = fileName || `Beleg_${id}`;
                     
                     const contentContainer = document.getElementById('preview-content');
-                    contentContainer.innerHTML = ''; // Clear previous
+                    contentContainer.innerHTML = ''; 
 
                     if (dataUrl.startsWith('data:image')) {
                         const img = document.createElement('img');
@@ -601,7 +661,6 @@
                 const response = await fetch(currentPreviewData);
                 const blob = await response.blob();
                 
-                // Endung ableiten, falls keine vorhanden
                 let safeFileName = currentPreviewName;
                 if(!safeFileName.includes('.')) {
                     safeFileName += currentPreviewData.startsWith('data:image') ? '.jpg' : '.pdf';
@@ -811,7 +870,6 @@
 
             let filtered = expenses.sort((a,b) => new Date(b.date) - new Date(a.date));
             
-            // Filtern
             if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
             if (toDate) {
                 let end = new Date(toDate);
@@ -822,7 +880,6 @@
                 filtered = filtered.filter(e => e.taxRelevant !== false);
             }
 
-            // Nach Monaten gruppieren
             const groupedByMonth = {};
             
             filtered.forEach(item => {
@@ -830,9 +887,7 @@
                 if(!item.id) item.id = generateId(); 
                 
                 const d = new Date(item.date);
-                // Erzeugt z.B. "Mai 2026"
                 const monthName = d.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
-                // Erzeugt einen Sortierschlüssel z.B. "2026-05"
                 const sortKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 
                 if (!groupedByMonth[sortKey]) {
@@ -847,13 +902,11 @@
                 groupedByMonth[sortKey].items.push(item);
             });
 
-            // Sortierte Schlüssel absteigend durchlaufen
             const sortedMonthKeys = Object.keys(groupedByMonth).sort().reverse();
 
             sortedMonthKeys.forEach(key => {
                 const group = groupedByMonth[key];
 
-                // Monats-Überschrift inkl. Summe erstellen
                 const headerDiv = document.createElement('div');
                 headerDiv.className = 'month-header';
                 headerDiv.innerHTML = `
@@ -862,25 +915,25 @@
                 `;
                 container.appendChild(headerDiv);
 
-                // Einträge dieses Monats rendern
                 group.items.forEach(item => {
                     const isTax = item.taxRelevant !== false;
                     const div = document.createElement('div');
                     div.className = 'item';
+                    
                     div.innerHTML = `
-                        <div class="item-top">
-                            <div>
-                                <span class="item-name">${item.desc} ${item.isAuto ? '🔄' : ''} ${isTax ? '<span class="badge badge-tax">Steuer</span>' : '<span class="badge">Privat</span>'}</span>
-                                <div class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</div>
+                        <div class="item-left">
+                            <div class="item-name">
+                                ${item.desc} 
+                                ${item.isAuto ? '🔄' : ''} 
+                                ${isTax ? '<span class="badge badge-tax">Steuer</span>' : '<span class="badge">Privat</span>'}
                             </div>
-                            <span class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
+                            <div class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</div>
                         </div>
-                        <div class="item-actions">
-                            <div>
-                                ${item.hasFile ? `<button class="file-btn" onclick="openPreviewModal('${item.id}', '${item.fileName}')">📎 Ansehen</button>` : ''}
-                            </div>
-                            <div class="action-btns">
-                                <button class="icon-btn edit-btn" onclick="editExpense('${item.id}')">✎</button>
+                        <div class="item-right">
+                            <div class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</div>
+                            <div class="item-actions-compact">
+                                ${item.hasFile ? `<button class="icon-btn" onclick="openPreviewModal('${item.id}', '${item.fileName}')">📎</button>` : ''}
+                                <button class="icon-btn edit-btn" onclick="openEditModal('${item.id}')">✎</button>
                                 <button class="icon-btn del-btn" onclick="removeExpense('${item.id}')">✕</button>
                             </div>
                         </div>
@@ -893,22 +946,62 @@
             document.getElementById('total-count').innerText = filtered.length;
         }
 
-        function editExpense(id) {
+        // --- VOLLSTÄNDIGE BEARBEITEN FUNKTION ---
+        function openEditModal(id) {
             const expense = expenses.find(e => e.id === id);
             if (!expense) return;
 
-            let newVal = prompt(`Neuen Betrag für '${expense.desc}' eingeben:`, expense.amount);
+            // Felder im Edit-Modal befüllen
+            document.getElementById('edit-id').value = expense.id;
+            document.getElementById('edit-desc').value = expense.desc;
+            document.getElementById('edit-amount').value = expense.amount;
+            document.getElementById('edit-category').value = expense.category;
+            document.getElementById('edit-tax').checked = expense.taxRelevant !== false;
             
-            if (newVal !== null && newVal.trim() !== "") {
-                newVal = newVal.replace(',', '.'); 
-                if (!isNaN(newVal)) {
-                    expense.amount = newVal;
-                    save();
-                    render();
-                } else {
-                    alert("Gültige Zahl eingeben.");
-                }
+            // Datum für <input type="date"> formatieren (YYYY-MM-DD)
+            const d = new Date(expense.date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            document.getElementById('edit-date').value = `${year}-${month}-${day}`;
+
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        function saveEdit() {
+            const id = document.getElementById('edit-id').value;
+            const expense = expenses.find(e => e.id === id);
+            if (!expense) return;
+
+            const newDesc = document.getElementById('edit-desc').value;
+            const newAmount = document.getElementById('edit-amount').value;
+            const newCategory = document.getElementById('edit-category').value;
+            const newTax = document.getElementById('edit-tax').checked;
+            const newDateVal = document.getElementById('edit-date').value;
+
+            if(!newDesc || !newAmount || !newDateVal) {
+                return alert("Bitte Bezeichnung, Betrag und Datum ausfüllen.");
             }
+
+            // Werte aktualisieren
+            expense.desc = newDesc;
+            expense.amount = newAmount.replace(',', '.');
+            expense.category = newCategory;
+            expense.taxRelevant = newTax;
+            
+            // Datum aktualisieren (Uhrzeit beibehalten, falls vorhanden)
+            const oldDate = new Date(expense.date);
+            const dateParts = newDateVal.split('-');
+            oldDate.setFullYear(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            expense.date = oldDate.toISOString();
+
+            save();
+            render();
+            closeEditModal();
         }
 
         function removeExpense(id) {
