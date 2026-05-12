@@ -345,7 +345,7 @@
             border: 1px solid rgba(59, 130, 246, 0.3); 
         }
 
-        .icon-btn { background: none; border: none; font-size: 0.75rem; padding: 2px; color: #555555; cursor: pointer; }
+        .icon-btn { background: none; border: none; font-size: 0.9rem; padding: 2px; color: #555555; cursor: pointer; }
 
         .modal-overlay {
             display: none;
@@ -532,7 +532,7 @@
             <div class="input-row" style="margin-bottom: 4px;">
                 <label>Beleg / Rechnung</label>
                 <div class="file-input-wrapper">
-                    <span id="file-label">📎 Optional hinzufügen...</span>
+                    <span id="file-label">📷 Beleg / Foto hinzufügen...</span>
                     <input type="file" id="receipt-file" accept="image/*,application/pdf" onchange="updateFileLabel('receipt-file', 'file-label')">
                 </div>
             </div>
@@ -618,7 +618,7 @@
             <div class="input-row" style="margin-bottom: 15px;">
                 <label>Beleg ändern</label>
                 <div class="file-input-wrapper">
-                    <span id="edit-file-label">📎 Beleg ändern...</span>
+                    <span id="edit-file-label">📷 Beleg / Foto ändern...</span>
                     <input type="file" id="edit-receipt-file" accept="image/*,application/pdf" onchange="updateFileLabel('edit-receipt-file', 'edit-file-label')">
                 </div>
             </div>
@@ -649,16 +649,13 @@
     <input type="file" id="imp" style="display:none" onchange="restore(event)">
 
     <script>
-        // SERVICE WORKER REGISTRIERUNG (Offline Support)
+        // PUTZ-BEFEHL: Alten Service Worker (Offline-Speicher) zwingend löschen
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => {
-                    // Update check forcieren
-                    reg.update();
-                    console.log('SW registriert');
-                }).catch(err => {
-                    console.log('SW Fehler:', err);
-                });
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                    console.log('Alter Offline-Speicher wurde gelöscht.');
+                }
             });
         }
 
@@ -799,7 +796,7 @@
                 label.innerText = "📎 " + input.files[0].name;
                 label.style.color = "#fff";
             } else {
-                label.innerText = "📎 Optional hinzufügen...";
+                label.innerText = "📷 Beleg / Foto hinzufügen...";
                 label.style.color = "var(--text-dim)";
             }
         }
@@ -1369,7 +1366,7 @@
                 fileLabel.innerText = "📎 Beleg vorhanden (Neu auswählen zum Ersetzen)";
                 fileLabel.style.color = "#60a5fa";
             } else {
-                fileLabel.innerText = "📎 Optional hinzufügen...";
+                fileLabel.innerText = "📷 Beleg / Foto hinzufügen...";
                 fileLabel.style.color = "var(--text-dim)";
             }
 
