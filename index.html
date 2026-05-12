@@ -252,39 +252,39 @@
             padding-bottom: 20px;
         }
 
-        /* --- Farblich hervorgehobener Monatstrenner --- */
+        /* --- Farblich hervorgehobener Monatstrenner (Grün) --- */
         .month-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
-            margin-top: 18px;
-            margin-bottom: 8px;
-            background: rgba(59, 130, 246, 0.15); /* Sanftes Blau im Hintergrund */
-            border-left: 4px solid var(--edit); /* Blaue Linie links zur klaren Trennung */
+            padding: 6px 10px;
+            margin-top: 14px;
+            margin-bottom: 6px;
+            background: rgba(16, 185, 129, 0.15); /* Sanftes Grün im Hintergrund */
+            border-left: 4px solid var(--success); /* Grüne Linie links */
             border-radius: 4px;
         }
         
         .month-header-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #93c5fd; /* Helles Blau für den Monatsnamen */
+            color: #6ee7b7; /* Helles Grün */
         }
         
         .month-header-sum {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: bold;
-            color: #ffffff; /* Weiß für die Summe, damit sie lesbar bleibt */
+            color: #ffffff; 
         }
 
         /* --- Ultra Kompakte Item Liste --- */
         .item {
             background: var(--card-bg);
-            padding: 6px 10px;
-            border-radius: 8px;
-            margin-bottom: 5px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            margin-bottom: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -296,7 +296,7 @@
             flex-direction: column;
             justify-content: center;
             flex: 1;
-            padding-right: 10px;
+            padding-right: 8px;
         }
 
         .item-right {
@@ -308,7 +308,7 @@
 
         .item-name { 
             font-weight: 600; 
-            font-size: 0.8rem; 
+            font-size: 0.75rem; 
             display: flex; 
             align-items: center; 
             flex-wrap: wrap;
@@ -316,38 +316,42 @@
         }
 
         .item-meta { 
-            font-size: 0.6rem; 
+            font-size: 0.55rem; 
             color: var(--text-dim); 
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .item-price { 
             font-weight: bold; 
-            font-size: 0.85rem; 
-            margin-bottom: 4px; 
+            font-size: 0.75rem; 
+            margin-bottom: 2px; 
         }
 
         .item-actions-compact {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
         
         .badge {
-            font-size: 0.5rem;
+            font-size: 0.45rem;
             background: #222;
             padding: 2px 4px;
             border-radius: 3px;
             color: #aaa;
             text-transform: uppercase;
         }
-        .badge-tax { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        /* Steuer Badge ist jetzt Blau */
+        .badge-tax { 
+            background: rgba(59, 130, 246, 0.2); 
+            color: #60a5fa; 
+            border: 1px solid rgba(59, 130, 246, 0.3); 
+        }
 
-        .icon-btn { background: none; border: none; font-size: 0.95rem; padding: 0; color: white; cursor: pointer; }
-        .edit-btn { color: var(--edit); }
-        .del-btn { color: var(--danger); }
+        /* Icons dezent grau */
+        .icon-btn { background: none; border: none; font-size: 0.85rem; padding: 2px; color: #888888; cursor: pointer; }
 
-        /* Vorschau & Edit Modals */
+        /* Vorschau, Edit & Export Modals */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -399,7 +403,7 @@
             margin-top: auto; 
             padding-bottom: 10px; 
             display: grid; 
-            grid-template-columns: 1fr 1fr; 
+            grid-template-columns: 1fr; 
             gap: 8px;
         }
 
@@ -408,14 +412,14 @@
             body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
             #view-list { display: block !important; }
-            .btn, .filter-section, .item-actions-compact, header, .btn-nav, .bottom-actions, .modal-overlay { display: none !important; }
+            .btn, .filter-section, .item-actions-compact, header, .btn-nav, .bottom-actions, .modal-overlay, .stats-grid { display: none !important; }
             .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; padding: 5px; page-break-inside: avoid; }
             .month-header { background: #eeeeee !important; border-left: 4px solid #000 !important; border-bottom: none !important; color: black !important; margin-top: 15px; padding: 8px; }
             .month-header-title { color: black !important; }
             .month-header-sum { color: black !important; }
             .item-meta { color: #555 !important; }
             .badge { border: 1px solid #999 !important; color: black !important; background: none !important; }
-            .stat-card { background: white !important; border: 1px solid #ccc !important; color: black !important; }
+            .no-print { display: none !important; }
         }
     </style>
 </head>
@@ -424,17 +428,6 @@
     <!-- HOME: EINGABE -->
     <div id="view-home" class="view active">
         <header><h1>Ausgabe Erfassen</h1></header>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="stat-label">Gesamt</span>
-                <span class="stat-val" id="total-val">0,00 €</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-label">Einträge</span>
-                <span class="stat-val" id="total-count">0</span>
-            </div>
-        </div>
 
         <div class="form-container">
             <div class="input-row">
@@ -469,7 +462,8 @@
             </div>
             
             <div class="checkbox-row" style="margin-bottom: 8px;">
-                <input type="checkbox" id="tax-relevant" checked>
+                <!-- STANDARDMÄSSIG DEAKTIVIERT -->
+                <input type="checkbox" id="tax-relevant">
                 <label for="tax-relevant" style="font-weight:600; color:white;">Für Steuer relevant</label>
             </div>
 
@@ -510,7 +504,7 @@
 
         <button class="btn btn-nav" onclick="showView('view-list')">Liste & Export →</button>
         
-        <div class="bottom-actions">
+        <div class="bottom-actions" style="grid-template-columns: 1fr 1fr; margin-top: 15px;">
             <button class="btn btn-action" onclick="backup()">Backup (Daten)</button>
             <button class="btn btn-action" onclick="document.getElementById('imp').click()">Laden</button>
         </div>
@@ -524,6 +518,18 @@
             <div style="width:50px"></div>
         </header>
 
+        <!-- NEU: GETRENNTE STATISTIKEN (Steuer vs Privat) -->
+        <div class="stats-grid" style="margin-bottom: 8px;">
+            <div class="stat-card" style="border-color: rgba(59, 130, 246, 0.4);">
+                <span class="stat-label" style="color: #60a5fa;">Steuerrelevant (<span id="tax-count">0</span>)</span>
+                <span class="stat-val" id="tax-val">0,00 €</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Privat (<span id="priv-count">0</span>)</span>
+                <span class="stat-val" id="priv-val" style="color: #aaa;">0,00 €</span>
+            </div>
+        </div>
+
         <div class="filter-section">
             <div class="filter-grid">
                 <div>
@@ -536,7 +542,8 @@
                 </div>
             </div>
             <div class="checkbox-row" style="margin-top: 4px; border-top: 1px solid var(--border-color); padding-top: 6px;">
-                <input type="checkbox" id="filter-tax" checked onchange="render()">
+                <!-- STANDARDMÄSSIG DEAKTIVIERT -->
+                <input type="checkbox" id="filter-tax" onchange="render()">
                 <label for="filter-tax" style="color:white; font-size:0.75rem;">Nur steuerrelevante anzeigen</label>
             </div>
         </div>
@@ -544,8 +551,8 @@
         <div id="list-container" class="expense-list-container"></div>
 
         <div class="bottom-actions">
-            <button class="btn btn-action" onclick="window.print()">PDF Export</button>
-            <button class="btn btn-action" onclick="exportCSV()">CSV (Steuer)</button>
+            <!-- NEU: Export Auswahl Modal Aufruf -->
+            <button class="btn btn-action" style="font-size: 0.8rem; padding: 12px; background: #222;" onclick="openExportModal()">Export Auswahl (PDF / CSV)</button>
         </div>
     </div>
 
@@ -605,6 +612,27 @@
         </div>
     </div>
 
+    <!-- NEU: EXPORT SELECTION MODAL -->
+    <div id="export-modal" class="modal-overlay">
+        <div class="form-container" style="max-width: 500px; width: 100%; max-height: 85vh; display: flex; flex-direction: column;">
+            <h2 style="color:white; margin-bottom:10px; font-size:1rem; text-align:center;">Für Export auswählen</h2>
+            <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <button class="btn-action" style="width:auto; padding: 6px 12px; border-radius: 4px;" onclick="toggleExportAll(true)">Alle markieren</button>
+                <button class="btn-action" style="width:auto; padding: 6px 12px; border-radius: 4px;" onclick="toggleExportAll(false)">Keine</button>
+            </div>
+            
+            <div id="export-list" style="overflow-y: auto; flex: 1; border: 1px solid #333; border-radius: 6px; padding: 5px; margin-bottom: 15px; background: #0f0f0f;">
+                <!-- Checkboxes werden hier generiert -->
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <button class="btn btn-add" style="margin-top:0; background: #333; color: white;" onclick="exportSelectedCSV()">Als CSV</button>
+                <button class="btn btn-add" style="margin-top:0; background: #ffffff;" onclick="exportSelectedPDF()">Als PDF</button>
+            </div>
+            <button class="btn btn-modal-close" onclick="closeExportModal()">Abbrechen</button>
+        </div>
+    </div>
+
     <input type="file" id="imp" style="display:none" onchange="restore(event)">
 
     <script>
@@ -612,7 +640,6 @@
         let recurringItems = JSON.parse(localStorage.getItem('recurringItems')) || [];
         let lastRecurringCheck = localStorage.getItem('lastCheck') || "";
 
-        // --- HELPER FÜR HEUTIGES DATUM ---
         function getTodayString() {
             const d = new Date();
             const year = d.getFullYear();
@@ -623,7 +650,6 @@
         
         document.getElementById('date').value = getTodayString();
 
-        // --- HELPER FÜR EIGENE KATEGORIEN ---
         function toggleCustomCategory(selectId, containerId) {
             const select = document.getElementById(selectId);
             const container = document.getElementById(containerId);
@@ -634,7 +660,6 @@
             }
         }
 
-        // --- DATENBANK FÜR DATEIEN (IndexedDB) ---
         let db;
         const dbReq = indexedDB.open("SpesenFilesDB", 1);
         dbReq.onupgradeneeded = (e) => {
@@ -651,7 +676,6 @@
             tx.objectStore('files').put(dataUrl, id);
         }
 
-        // --- VORSCHAU & TEILEN LOGIK ---
         let currentPreviewData = null;
         let currentPreviewName = null;
 
@@ -760,7 +784,6 @@
             checkboxes.forEach(cb => cb.checked = !allChecked);
         }
 
-        // --- RÜCKWIRKENDE WIEDERKEHRENDE LOGIK BEIM APP-START ---
         function checkRecurring() {
             const now = new Date();
             const currentYear = now.getFullYear();
@@ -780,12 +803,10 @@
                 let checkY = startYear;
                 let checkM = startMonth;
 
-                // Loop von der letzten Überprüfung bis zum aktuellen Monat
                 while (checkY < currentYear || (checkY === currentYear && checkM <= currentMonth)) {
                     recurringItems.forEach(item => {
                         const activeMonths = item.months || [0,1,2,3,4,5,6,7,8,9,10,11];
 
-                        // Prüfen ob das Item in diesem checkY/checkM überhaupt schon "gültig" war
                         let isValid = true;
                         if (item.startDate) {
                             const sDate = new Date(item.startDate);
@@ -807,7 +828,6 @@
                                 let day = 1;
                                 if (item.startDate) day = new Date(item.startDate).getDate();
                                 
-                                // Tag korrigieren, falls Monat kürzer ist (z.B. 31. Feb -> 28. Feb)
                                 const maxDays = new Date(checkY, checkM + 1, 0).getDate();
                                 if (day > maxDays) day = maxDays;
 
@@ -849,7 +869,6 @@
             localStorage.setItem('recurringItems', JSON.stringify(recurringItems));
         }
 
-        // --- NEUER EINTRAG SPEICHERN ---
         async function addExpense() {
             const dateVal = document.getElementById('date').value;
             const desc = document.getElementById('desc').value;
@@ -866,7 +885,6 @@
 
             if(!desc || !amount || !dateVal) return alert("Bitte Datum, Bezeichnung und Betrag ausfüllen!");
 
-            // Datum parsen
             let baseDate = new Date();
             const dateParts = dateVal.split('-');
             if (dateParts.length === 3) {
@@ -902,7 +920,6 @@
                 const startDateISO = baseDate.toISOString();
                 recurringItems.push({ desc, amount, category, months: selectedMonths, taxRelevant: isTaxRelevant, startDate: startDateISO });
 
-                // RÜCKWIRKEND: Generiere alle Einträge ab dem Startdatum bis heute
                 const startY = baseDate.getFullYear();
                 const startM = baseDate.getMonth();
                 const nowY = new Date().getFullYear();
@@ -939,7 +956,6 @@
                     if (currM > 11) { currM = 0; currY++; }
                 }
             } else {
-                // Einmalige Ausgabe
                 const newId = generateId();
                 expenses.push({ 
                     id: newId, 
@@ -956,7 +972,6 @@
                 if(hasFile && fileDataUrl) saveFileToDB(newId, fileDataUrl);
             }
 
-            // Formular zurücksetzen
             document.getElementById('date').value = getTodayString();
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
@@ -964,7 +979,7 @@
             document.getElementById('custom-category').value = '';
             document.getElementById('custom-category-container').style.display = 'none';
             document.getElementById('recurring').checked = false;
-            document.getElementById('tax-relevant').checked = true;
+            document.getElementById('tax-relevant').checked = false; // Reset auf nicht angehakt
             document.querySelectorAll('.month-checkbox').forEach(cb => cb.checked = false);
             document.getElementById('months-container').style.display = 'none';
             fileInput.value = '';
@@ -975,15 +990,12 @@
             alert("Gespeichert!");
         }
 
-        function render() {
-            const container = document.getElementById('list-container');
+        // Hilfsfunktion zum Filtern der aktuellen Liste
+        function getFilteredItems() {
             const fromDate = document.getElementById('filter-from').value;
             const toDate = document.getElementById('filter-to').value;
             const taxOnly = document.getElementById('filter-tax').checked;
             
-            container.innerHTML = '';
-            let globalTotal = 0;
-
             let filtered = expenses.sort((a,b) => new Date(b.date) - new Date(a.date));
             
             if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
@@ -995,11 +1007,32 @@
             if (taxOnly) {
                 filtered = filtered.filter(e => e.taxRelevant !== false);
             }
+            return filtered;
+        }
+
+        function render() {
+            const container = document.getElementById('list-container');
+            const filtered = getFilteredItems();
+            
+            container.innerHTML = '';
+            
+            let taxTotal = 0;
+            let taxCount = 0;
+            let privTotal = 0;
+            let privCount = 0;
 
             const groupedByMonth = {};
             
             filtered.forEach(item => {
-                globalTotal += parseFloat(item.amount);
+                const isTax = item.taxRelevant !== false;
+                if (isTax) {
+                    taxTotal += parseFloat(item.amount);
+                    taxCount++;
+                } else {
+                    privTotal += parseFloat(item.amount);
+                    privCount++;
+                }
+
                 if(!item.id) item.id = generateId(); 
                 
                 const d = new Date(item.date);
@@ -1018,6 +1051,12 @@
                 groupedByMonth[sortKey].items.push(item);
             });
 
+            // Update Header Stats
+            document.getElementById('tax-count').innerText = taxCount;
+            document.getElementById('tax-val').innerText = taxTotal.toFixed(2).replace('.', ',') + ' €';
+            document.getElementById('priv-count').innerText = privCount;
+            document.getElementById('priv-val').innerText = privTotal.toFixed(2).replace('.', ',') + ' €';
+
             const sortedMonthKeys = Object.keys(groupedByMonth).sort().reverse();
 
             sortedMonthKeys.forEach(key => {
@@ -1035,6 +1074,7 @@
                     const isTax = item.taxRelevant !== false;
                     const div = document.createElement('div');
                     div.className = 'item';
+                    div.dataset.id = item.id; // Für selektiven Print wichtig
                     
                     div.innerHTML = `
                         <div class="item-left">
@@ -1049,20 +1089,116 @@
                             <div class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</div>
                             <div class="item-actions-compact">
                                 ${item.hasFile ? `<button class="icon-btn" onclick="openPreviewModal('${item.id}', '${item.fileName}')">📎</button>` : ''}
-                                <button class="icon-btn edit-btn" onclick="openEditModal('${item.id}')">✎</button>
-                                <button class="icon-btn del-btn" onclick="removeExpense('${item.id}')">✕</button>
+                                <button class="icon-btn" onclick="openEditModal('${item.id}')">✎</button>
+                                <button class="icon-btn" onclick="removeExpense('${item.id}')">✕</button>
                             </div>
                         </div>
                     `;
                     container.appendChild(div);
                 });
             });
-
-            document.getElementById('total-val').innerText = globalTotal.toFixed(2).replace('.', ',') + ' €';
-            document.getElementById('total-count').innerText = filtered.length;
         }
 
-        // --- VOLLSTÄNDIGE BEARBEITEN FUNKTION ---
+        // --- EXPORT AUSWAHL LOGIK ---
+        function openExportModal() {
+            const items = getFilteredItems();
+            const container = document.getElementById('export-list');
+            container.innerHTML = '';
+            
+            if (items.length === 0) {
+                container.innerHTML = '<p style="color:#888; text-align:center; padding:20px;">Keine Einträge vorhanden.</p>';
+            } else {
+                items.forEach(item => {
+                    const isTax = item.taxRelevant !== false;
+                    container.innerHTML += `
+                        <label style="display:flex; align-items:center; gap:10px; padding: 10px 5px; border-bottom: 1px solid #222;">
+                            <input type="checkbox" class="export-checkbox" value="${item.id}" checked style="width:20px; height:20px; accent-color: white;">
+                            <div style="flex:1; line-height: 1.2;">
+                                <span style="color:white; font-size: 0.85rem; display:block;">${item.desc} (${parseFloat(item.amount).toFixed(2)} €)</span>
+                                <span style="color:#888; font-size: 0.65rem;">${new Date(item.date).toLocaleDateString('de-DE')}</span>
+                            </div>
+                            ${isTax ? '<span style="color:#60a5fa; font-size:0.6rem; text-transform:uppercase;">Steuer</span>' : '<span style="color:#888; font-size:0.6rem; text-transform:uppercase;">Privat</span>'}
+                        </label>
+                    `;
+                });
+            }
+            document.getElementById('export-modal').style.display = 'flex';
+        }
+
+        function closeExportModal() {
+            document.getElementById('export-modal').style.display = 'none';
+        }
+
+        function toggleExportAll(check) {
+            document.querySelectorAll('.export-checkbox').forEach(cb => cb.checked = check);
+        }
+
+        function getSelectedExportIds() {
+            return Array.from(document.querySelectorAll('.export-checkbox:checked')).map(cb => cb.value);
+        }
+
+        function exportSelectedCSV() {
+            const selectedIds = getSelectedExportIds();
+            if(selectedIds.length === 0) return alert("Keine Einträge ausgewählt.");
+            
+            let filtered = expenses.filter(e => selectedIds.includes(e.id));
+            filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Betrag;Steuerrelevant;BelegVorhanden\n";
+            filtered.forEach(e => {
+                const isTax = e.taxRelevant !== false ? "Ja" : "Nein";
+                const hasReceipt = e.hasFile ? "Ja" : "Nein";
+                csv += `${new Date(e.date).toLocaleDateString('de-DE')};${e.desc};${e.category};${e.amount.replace('.', ',')};${isTax};${hasReceipt}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Export_Spesen_Auswahl_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            
+            closeExportModal();
+        }
+
+        function exportSelectedPDF() {
+            const selectedIds = getSelectedExportIds();
+            if(selectedIds.length === 0) return alert("Keine Einträge ausgewählt.");
+            
+            // Verstecke alle nicht gewählten Einträge für den Druck
+            document.querySelectorAll('.item').forEach(el => {
+                if(!selectedIds.includes(el.dataset.id)) {
+                    el.classList.add('no-print');
+                } else {
+                    el.classList.remove('no-print');
+                }
+            });
+
+            // Verstecke leere Monats-Köpfe
+            document.querySelectorAll('.month-header').forEach(header => {
+                let next = header.nextElementSibling;
+                let hasVisibleItem = false;
+                while(next && !next.classList.contains('month-header')) {
+                    if(next.classList.contains('item') && !next.classList.contains('no-print')) {
+                        hasVisibleItem = true;
+                        break;
+                    }
+                    next = next.nextElementSibling;
+                }
+                if(!hasVisibleItem) {
+                    header.classList.add('no-print');
+                }
+            });
+
+            closeExportModal();
+            
+            // Kurz warten, bis Modal weg ist, dann drucken
+            setTimeout(() => {
+                window.print();
+                // Danach Liste wieder sauber aufbauen
+                render(); 
+            }, 300);
+        }
+
         function openEditModal(id) {
             const expense = expenses.find(e => e.id === id);
             if (!expense) return;
@@ -1072,7 +1208,6 @@
             document.getElementById('edit-amount').value = expense.amount;
             document.getElementById('edit-tax').checked = expense.taxRelevant !== false;
             
-            // Kategorie Logik für Edit Modal
             const catSelect = document.getElementById('edit-category');
             const customContainer = document.getElementById('edit-custom-category-container');
             const customInput = document.getElementById('edit-custom-category');
@@ -1145,34 +1280,6 @@
                 save();
                 render();
             }
-        }
-
-        function exportCSV() {
-            const fromDate = document.getElementById('filter-from').value;
-            const toDate = document.getElementById('filter-to').value;
-            const taxOnly = document.getElementById('filter-tax').checked;
-            
-            let filtered = expenses;
-            if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
-            if (toDate) {
-                let end = new Date(toDate);
-                end.setHours(23,59,59);
-                filtered = filtered.filter(e => new Date(e.date) <= end);
-            }
-            if (taxOnly) filtered = filtered.filter(e => e.taxRelevant !== false);
-
-            let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Betrag;Steuerrelevant;BelegVorhanden\n";
-            filtered.forEach(e => {
-                const isTax = e.taxRelevant !== false ? "Ja" : "Nein";
-                const hasReceipt = e.hasFile ? "Ja" : "Nein";
-                csv += `${new Date(e.date).toLocaleDateString('de-DE')};${e.desc};${e.category};${e.amount.replace('.', ',')};${isTax};${hasReceipt}\n`;
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `Export_Spesen_${fromDate||'Start'}_bis_${toDate||'Ende'}.csv`;
-            a.click();
         }
 
         function backup() {
