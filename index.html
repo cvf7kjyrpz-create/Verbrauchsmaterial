@@ -252,29 +252,31 @@
             padding-bottom: 20px;
         }
 
-        /* Monatstrenner Kompakt */
+        /* --- Farblich hervorgehobener Monatstrenner --- */
         .month-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 4px 4px 4px;
-            margin-top: 5px;
-            margin-bottom: 4px;
-            border-bottom: 1px solid #333;
-            color: #cccccc;
+            padding: 8px 12px;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            background: rgba(59, 130, 246, 0.15); /* Sanftes Blau im Hintergrund */
+            border-left: 4px solid var(--edit); /* Blaue Linie links zur klaren Trennung */
+            border-radius: 4px;
         }
         
         .month-header-title {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
+            color: #93c5fd; /* Helles Blau für den Monatsnamen */
         }
         
         .month-header-sum {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-weight: bold;
-            color: var(--text-main);
+            color: #ffffff; /* Weiß für die Summe, damit sie lesbar bleibt */
         }
 
         /* --- Ultra Kompakte Item Liste --- */
@@ -408,7 +410,8 @@
             #view-list { display: block !important; }
             .btn, .filter-section, .item-actions-compact, header, .btn-nav, .bottom-actions, .modal-overlay { display: none !important; }
             .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; padding: 5px; page-break-inside: avoid; }
-            .month-header { border-bottom: 2px solid black !important; color: black !important; margin-top: 15px; padding: 5px 0; }
+            .month-header { background: #eeeeee !important; border-left: 4px solid #000 !important; border-bottom: none !important; color: black !important; margin-top: 15px; padding: 8px; }
+            .month-header-title { color: black !important; }
             .month-header-sum { color: black !important; }
             .item-meta { color: #555 !important; }
             .badge { border: 1px solid #999 !important; color: black !important; background: none !important; }
@@ -461,7 +464,6 @@
                 </select>
             </div>
             
-            <!-- NEU: Verstecktes Feld für eigene Kategorie -->
             <div class="input-row" id="custom-category-container" style="display: none; margin-top: -4px;">
                 <input type="text" id="custom-category" placeholder="Eigene Kategorie eingeben..." autocomplete="off">
             </div>
