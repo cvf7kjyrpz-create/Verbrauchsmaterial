@@ -684,6 +684,8 @@
         }
 
         let db;
+        let dbReady = false;
+        
         const dbReq = indexedDB.open("SpesenFilesDB", 1);
         dbReq.onupgradeneeded = (e) => {
             db = e.target.result;
@@ -691,7 +693,13 @@
                 db.createObjectStore('files');
             }
         };
-        dbReq.onsuccess = (e) => db = e.target.result;
+        dbReq.onsuccess = (e) => {
+            db = e.target.result;
+            dbReady = true;
+            if(document.getElementById('view-list').classList.contains('active')) {
+                render();
+            }
+        };
 
         function saveFileToDB(id, dataUrl) {
             if(!db) return;
@@ -732,7 +740,7 @@
                     
                     document.getElementById('preview-modal').style.display = 'flex';
                 } else {
-                    alert("Die Datei konnte nicht gefunden werden.");
+                    alert("Die Datei konnte nicht gefunden werden. Eventuell ist es ein alter Eintrag ohne Bild.");
                 }
             };
         }
@@ -1053,9 +1061,27 @@
             return filtered;
         }
 
-        function render() {
+        async function render() {
             const container = document.getElementById('list-container');
             const filtered = getFilteredItems();
+
+            // RÖNTGENBLICK: Gleicht die Text-Daten mit der tatsächlichen Bild-Datenbank ab
+            let validFileIds = null;
+            if (dbReady && db) {
+                try {
+                    validFileIds = await new Promise((resolve) => {
+                        const tx = db.transaction('files', 'readonly');
+                        const store = tx.objectStore('files');
+                        const req = store.getAllKeys();
+                        req.onsuccess = () => resolve(req.result || []);
+                        req.onerror = () => resolve(null);
+                    });
+                } catch (err) {
+                    console.log("Fehler beim Prüfen der Bilder in der Datenbank.", err);
+                }
+            }
+
+            let dataCorrupted = false;
             
             container.innerHTML = '';
             
@@ -1072,6 +1098,16 @@
             const groupedByMonth = {};
             
             filtered.forEach(item => {
+                // 1. REPARATUR-FUNKTION: Wenn laut Text ein Bild da sein soll, 
+                // aber in der Datenbank nichts ist, wird der Fehler hier repariert.
+                if (validFileIds !== null) {
+                    const fileReallyExists = validFileIds.includes(item.id);
+                    if (item.hasFile !== fileReallyExists) {
+                        item.hasFile = fileReallyExists; // Repariert den Eintrag sofort
+                        dataCorrupted = true;
+                    }
+                }
+
                 const isTax = item.taxRelevant !== false;
                 const isFirma = (item.account === 'Firma' || !item.account);
                 const amt = parseFloat(item.amount);
@@ -1116,6 +1152,11 @@
                 
                 groupedByMonth[sortKey].items.push(item);
             });
+
+            // Wenn alte "Geister-Einträge" gefunden wurden, Speichern wir die reparierte Version dauerhaft
+            if (dataCorrupted) {
+                save(); 
+            }
 
             document.getElementById('tax-count').innerText = taxCount;
             document.getElementById('tax-val').innerText = taxTotal.toFixed(2).replace('.', ',') + ' €';
