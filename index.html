@@ -434,6 +434,12 @@
         </div>
 
         <div class="form-container">
+            <!-- NEU: Datumsfeld -->
+            <div class="input-row">
+                <label>Datum</label>
+                <input type="date" id="date">
+            </div>
+
             <div class="input-row">
                 <label>Bezeichnung</label>
                 <input type="text" id="desc" placeholder="z.B. Klebeband" autocomplete="off">
@@ -591,6 +597,18 @@
         let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
         let recurringItems = JSON.parse(localStorage.getItem('recurringItems')) || [];
         let lastRecurringCheck = localStorage.getItem('lastCheck') || "";
+
+        // --- HELPER FÜR HEUTIGES DATUM ---
+        function getTodayString() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // Initialisiere Datumsfeld auf heute
+        document.getElementById('date').value = getTodayString();
 
         // --- DATENBANK FÜR DATEIEN (IndexedDB) ---
         let db;
@@ -768,6 +786,7 @@
         }
 
         async function addExpense() {
+            const dateVal = document.getElementById('date').value;
             const desc = document.getElementById('desc').value;
             const amount = document.getElementById('amount').value;
             const category = document.getElementById('category').value;
@@ -775,7 +794,14 @@
             const isTaxRelevant = document.getElementById('tax-relevant').checked;
             const fileInput = document.getElementById('receipt-file');
 
-            if(!desc || !amount) return alert("Bitte Bezeichnung und Betrag ausfüllen!");
+            if(!desc || !amount || !dateVal) return alert("Bitte Datum, Bezeichnung und Betrag ausfüllen!");
+
+            // Ausgewähltes Datum parsen (sicherstellen, dass keine Zeitzonen-Verschiebung passiert)
+            let baseDate = new Date();
+            const dateParts = dateVal.split('-');
+            if (dateParts.length === 3) {
+                baseDate.setFullYear(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            }
 
             let hasFile = false;
             let fileName = "";
@@ -794,8 +820,8 @@
             }
 
             let selectedMonths = [];
-            const currentMonthIndex = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
+            const currentMonthIndex = baseDate.getMonth();
+            const currentYear = baseDate.getFullYear();
 
             if (isRecurring) {
                 document.querySelectorAll('.month-checkbox:checked').forEach(cb => {
@@ -810,7 +836,7 @@
                 selectedMonths.forEach(monthIndex => {
                     if (monthIndex <= currentMonthIndex) {
                         let entryDate = new Date(currentYear, monthIndex, 1, 12, 0, 0); 
-                        if (monthIndex === currentMonthIndex) entryDate = new Date();
+                        if (monthIndex === currentMonthIndex) entryDate = baseDate;
                         
                         const newId = generateId();
                         expenses.push({
@@ -835,7 +861,7 @@
                     desc, 
                     amount, 
                     category, 
-                    date: new Date().toISOString(),
+                    date: baseDate.toISOString(),
                     isAuto: false,
                     taxRelevant: isTaxRelevant,
                     hasFile: hasFile,
@@ -845,6 +871,8 @@
                 if(hasFile && fileDataUrl) saveFileToDB(newId, fileDataUrl);
             }
 
+            // Formular zurücksetzen
+            document.getElementById('date').value = getTodayString(); // Datum wieder auf heute setzen
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
             document.getElementById('recurring').checked = false;
@@ -951,14 +979,12 @@
             const expense = expenses.find(e => e.id === id);
             if (!expense) return;
 
-            // Felder im Edit-Modal befüllen
             document.getElementById('edit-id').value = expense.id;
             document.getElementById('edit-desc').value = expense.desc;
             document.getElementById('edit-amount').value = expense.amount;
             document.getElementById('edit-category').value = expense.category;
             document.getElementById('edit-tax').checked = expense.taxRelevant !== false;
             
-            // Datum für <input type="date"> formatieren (YYYY-MM-DD)
             const d = new Date(expense.date);
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -987,16 +1013,16 @@
                 return alert("Bitte Bezeichnung, Betrag und Datum ausfüllen.");
             }
 
-            // Werte aktualisieren
             expense.desc = newDesc;
             expense.amount = newAmount.replace(',', '.');
             expense.category = newCategory;
             expense.taxRelevant = newTax;
             
-            // Datum aktualisieren (Uhrzeit beibehalten, falls vorhanden)
             const oldDate = new Date(expense.date);
             const dateParts = newDateVal.split('-');
-            oldDate.setFullYear(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            if(dateParts.length === 3) {
+                oldDate.setFullYear(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+            }
             expense.date = oldDate.toISOString();
 
             save();
