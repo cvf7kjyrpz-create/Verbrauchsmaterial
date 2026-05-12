@@ -434,7 +434,6 @@
         </div>
 
         <div class="form-container">
-            <!-- NEU: Datumsfeld -->
             <div class="input-row">
                 <label>Datum</label>
                 <input type="date" id="date">
@@ -450,14 +449,21 @@
             </div>
             <div class="input-row">
                 <label>Kategorie</label>
-                <select id="category">
+                <select id="category" onchange="toggleCustomCategory('category', 'custom-category-container')">
                     <option value="Internet">Internet</option>
                     <option value="Telefon">Telefon</option>
                     <option value="Community">Community</option>
                     <option value="Büromaterial">Büromaterial</option>
                     <option value="Werkzeug">Werkzeug</option>
+                    <option value="Verpackungsmaterial">Verpackungsmaterial</option>
                     <option value="Sonstiges">Sonstiges</option>
+                    <option value="_custom_">+ Eigene Kategorie...</option>
                 </select>
+            </div>
+            
+            <!-- NEU: Verstecktes Feld für eigene Kategorie -->
+            <div class="input-row" id="custom-category-container" style="display: none; margin-top: -4px;">
+                <input type="text" id="custom-category" placeholder="Eigene Kategorie eingeben..." autocomplete="off">
             </div>
             
             <div class="checkbox-row" style="margin-bottom: 8px;">
@@ -570,15 +576,21 @@
             </div>
             <div class="input-row">
                 <label>Kategorie</label>
-                <select id="edit-category">
+                <select id="edit-category" onchange="toggleCustomCategory('edit-category', 'edit-custom-category-container')">
                     <option value="Internet">Internet</option>
                     <option value="Telefon">Telefon</option>
                     <option value="Community">Community</option>
                     <option value="Büromaterial">Büromaterial</option>
                     <option value="Werkzeug">Werkzeug</option>
+                    <option value="Verpackungsmaterial">Verpackungsmaterial</option>
                     <option value="Sonstiges">Sonstiges</option>
+                    <option value="_custom_">+ Eigene Kategorie...</option>
                 </select>
             </div>
+            <div class="input-row" id="edit-custom-category-container" style="display: none; margin-top: -4px;">
+                <input type="text" id="edit-custom-category" placeholder="Eigene Kategorie eingeben..." autocomplete="off">
+            </div>
+
             <div class="checkbox-row" style="margin-bottom: 15px;">
                 <input type="checkbox" id="edit-tax">
                 <label for="edit-tax" style="color:white;">Für Steuer relevant</label>
@@ -607,8 +619,18 @@
             return `${year}-${month}-${day}`;
         }
         
-        // Initialisiere Datumsfeld auf heute
         document.getElementById('date').value = getTodayString();
+
+        // --- HELPER FÜR EIGENE KATEGORIEN ---
+        function toggleCustomCategory(selectId, containerId) {
+            const select = document.getElementById(selectId);
+            const container = document.getElementById(containerId);
+            if (select.value === '_custom_') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
 
         // --- DATENBANK FÜR DATEIEN (IndexedDB) ---
         let db;
@@ -713,7 +735,6 @@
             const tx = db.transaction('files', 'readwrite');
             tx.objectStore('files').delete(id);
         }
-        // -----------------------------------------
 
         function generateId() {
             return Date.now().toString() + Math.random().toString(36).substring(2, 9);
@@ -737,38 +758,79 @@
             checkboxes.forEach(cb => cb.checked = !allChecked);
         }
 
+        // --- RÜCKWIRKENDE WIEDERKEHRENDE LOGIK BEIM APP-START ---
         function checkRecurring() {
             const now = new Date();
-            const currentMonthKey = `${now.getFullYear()}-${now.getMonth()}`;
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+            const currentMonthKey = `${currentYear}-${currentMonth}`;
             
             if (lastRecurringCheck !== currentMonthKey) {
-                const currentMonthIndex = now.getMonth();
+                let startYear = currentYear;
+                let startMonth = currentMonth;
+                
+                if (lastRecurringCheck) {
+                    const parts = lastRecurringCheck.split('-');
+                    startYear = parseInt(parts[0]);
+                    startMonth = parseInt(parts[1]);
+                }
 
-                recurringItems.forEach(item => {
-                    const activeMonths = item.months || [0,1,2,3,4,5,6,7,8,9,10,11];
+                let checkY = startYear;
+                let checkM = startMonth;
 
-                    if (activeMonths.includes(currentMonthIndex)) {
-                        const alreadyAdded = expenses.find(e => 
-                            e.desc === item.desc && 
-                            e.category === item.category &&
-                            new Date(e.date).getMonth() === currentMonthIndex &&
-                            new Date(e.date).getFullYear() === now.getFullYear() &&
-                            e.isAuto === true
-                        );
+                // Loop von der letzten Überprüfung bis zum aktuellen Monat
+                while (checkY < currentYear || (checkY === currentYear && checkM <= currentMonth)) {
+                    recurringItems.forEach(item => {
+                        const activeMonths = item.months || [0,1,2,3,4,5,6,7,8,9,10,11];
 
-                        if (!alreadyAdded) {
-                            expenses.push({
-                                id: generateId(),
-                                desc: item.desc,
-                                amount: item.amount,
-                                category: item.category,
-                                date: new Date().toISOString(),
-                                isAuto: true,
-                                taxRelevant: item.taxRelevant !== false 
-                            });
+                        // Prüfen ob das Item in diesem checkY/checkM überhaupt schon "gültig" war
+                        let isValid = true;
+                        if (item.startDate) {
+                            const sDate = new Date(item.startDate);
+                            if (checkY < sDate.getFullYear() || (checkY === sDate.getFullYear() && checkM < sDate.getMonth())) {
+                                isValid = false;
+                            }
                         }
+
+                        if (isValid && activeMonths.includes(checkM)) {
+                            const alreadyAdded = expenses.find(e => 
+                                e.desc === item.desc && 
+                                e.category === item.category &&
+                                new Date(e.date).getMonth() === checkM &&
+                                new Date(e.date).getFullYear() === checkY &&
+                                e.isAuto === true
+                            );
+
+                            if (!alreadyAdded) {
+                                let day = 1;
+                                if (item.startDate) day = new Date(item.startDate).getDate();
+                                
+                                // Tag korrigieren, falls Monat kürzer ist (z.B. 31. Feb -> 28. Feb)
+                                const maxDays = new Date(checkY, checkM + 1, 0).getDate();
+                                if (day > maxDays) day = maxDays;
+
+                                const entryDate = new Date(checkY, checkM, day, 12, 0, 0);
+
+                                expenses.push({
+                                    id: generateId(),
+                                    desc: item.desc,
+                                    amount: item.amount,
+                                    category: item.category,
+                                    date: entryDate.toISOString(),
+                                    isAuto: true,
+                                    taxRelevant: item.taxRelevant !== false 
+                                });
+                            }
+                        }
+                    });
+
+                    checkM++;
+                    if (checkM > 11) {
+                        checkM = 0;
+                        checkY++;
                     }
-                });
+                }
+                
                 localStorage.setItem('lastCheck', currentMonthKey);
                 save();
             }
@@ -785,18 +847,24 @@
             localStorage.setItem('recurringItems', JSON.stringify(recurringItems));
         }
 
+        // --- NEUER EINTRAG SPEICHERN ---
         async function addExpense() {
             const dateVal = document.getElementById('date').value;
             const desc = document.getElementById('desc').value;
             const amount = document.getElementById('amount').value;
-            const category = document.getElementById('category').value;
             const isRecurring = document.getElementById('recurring').checked;
             const isTaxRelevant = document.getElementById('tax-relevant').checked;
             const fileInput = document.getElementById('receipt-file');
 
+            let category = document.getElementById('category').value;
+            if (category === '_custom_') {
+                category = document.getElementById('custom-category').value.trim();
+                if (!category) return alert("Bitte eine eigene Kategorie eingeben!");
+            }
+
             if(!desc || !amount || !dateVal) return alert("Bitte Datum, Bezeichnung und Betrag ausfüllen!");
 
-            // Ausgewähltes Datum parsen (sicherstellen, dass keine Zeitzonen-Verschiebung passiert)
+            // Datum parsen
             let baseDate = new Date();
             const dateParts = dateVal.split('-');
             if (dateParts.length === 3) {
@@ -819,24 +887,36 @@
                 });
             }
 
-            let selectedMonths = [];
-            const currentMonthIndex = baseDate.getMonth();
-            const currentYear = baseDate.getFullYear();
-
             if (isRecurring) {
+                let selectedMonths = [];
                 document.querySelectorAll('.month-checkbox:checked').forEach(cb => {
                     selectedMonths.push(parseInt(cb.value));
                 });
+                
                 if (selectedMonths.length === 0) {
                     return alert("Bitte wähle mindestens einen Monat aus.");
                 }
                 
-                recurringItems.push({ desc, amount, category, months: selectedMonths, taxRelevant: isTaxRelevant });
+                const startDateISO = baseDate.toISOString();
+                recurringItems.push({ desc, amount, category, months: selectedMonths, taxRelevant: isTaxRelevant, startDate: startDateISO });
 
-                selectedMonths.forEach(monthIndex => {
-                    if (monthIndex <= currentMonthIndex) {
-                        let entryDate = new Date(currentYear, monthIndex, 1, 12, 0, 0); 
-                        if (monthIndex === currentMonthIndex) entryDate = baseDate;
+                // RÜCKWIRKEND: Generiere alle Einträge ab dem Startdatum bis heute
+                const startY = baseDate.getFullYear();
+                const startM = baseDate.getMonth();
+                const nowY = new Date().getFullYear();
+                const nowM = new Date().getMonth();
+
+                let currY = startY;
+                let currM = startM;
+
+                while (currY < nowY || (currY === nowY && currM <= nowM)) {
+                    if (selectedMonths.includes(currM)) {
+                        let day = baseDate.getDate();
+                        const maxDays = new Date(currY, currM + 1, 0).getDate();
+                        if (day > maxDays) day = maxDays;
+
+                        let entryDate = new Date(currY, currM, day, 12, 0, 0); 
+                        if (currY === startY && currM === startM) entryDate = baseDate;
                         
                         const newId = generateId();
                         expenses.push({
@@ -853,8 +933,11 @@
                         
                         if(hasFile && fileDataUrl) saveFileToDB(newId, fileDataUrl);
                     }
-                });
+                    currM++;
+                    if (currM > 11) { currM = 0; currY++; }
+                }
             } else {
+                // Einmalige Ausgabe
                 const newId = generateId();
                 expenses.push({ 
                     id: newId, 
@@ -872,9 +955,12 @@
             }
 
             // Formular zurücksetzen
-            document.getElementById('date').value = getTodayString(); // Datum wieder auf heute setzen
+            document.getElementById('date').value = getTodayString();
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
+            document.getElementById('category').value = 'Internet';
+            document.getElementById('custom-category').value = '';
+            document.getElementById('custom-category-container').style.display = 'none';
             document.getElementById('recurring').checked = false;
             document.getElementById('tax-relevant').checked = true;
             document.querySelectorAll('.month-checkbox').forEach(cb => cb.checked = false);
@@ -982,8 +1068,23 @@
             document.getElementById('edit-id').value = expense.id;
             document.getElementById('edit-desc').value = expense.desc;
             document.getElementById('edit-amount').value = expense.amount;
-            document.getElementById('edit-category').value = expense.category;
             document.getElementById('edit-tax').checked = expense.taxRelevant !== false;
+            
+            // Kategorie Logik für Edit Modal
+            const catSelect = document.getElementById('edit-category');
+            const customContainer = document.getElementById('edit-custom-category-container');
+            const customInput = document.getElementById('edit-custom-category');
+            
+            const existingOptions = Array.from(catSelect.options).map(opt => opt.value);
+            if (existingOptions.includes(expense.category) && expense.category !== '_custom_') {
+                catSelect.value = expense.category;
+                customContainer.style.display = 'none';
+                customInput.value = '';
+            } else {
+                catSelect.value = '_custom_';
+                customContainer.style.display = 'block';
+                customInput.value = expense.category;
+            }
             
             const d = new Date(expense.date);
             const year = d.getFullYear();
@@ -1005,9 +1106,14 @@
 
             const newDesc = document.getElementById('edit-desc').value;
             const newAmount = document.getElementById('edit-amount').value;
-            const newCategory = document.getElementById('edit-category').value;
             const newTax = document.getElementById('edit-tax').checked;
             const newDateVal = document.getElementById('edit-date').value;
+            
+            let newCategory = document.getElementById('edit-category').value;
+            if (newCategory === '_custom_') {
+                newCategory = document.getElementById('edit-custom-category').value.trim();
+                if (!newCategory) return alert("Bitte eine eigene Kategorie eingeben!");
+            }
 
             if(!newDesc || !newAmount || !newDateVal) {
                 return alert("Bitte Bezeichnung, Betrag und Datum ausfüllen.");
