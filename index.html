@@ -693,18 +693,38 @@
                 db.createObjectStore('files');
             }
         };
-        dbReq.onsuccess = (e) => {
+        dbReq.onsuccess = async (e) => {
             db = e.target.result;
             dbReady = true;
+            
+            // Führt zuerst die Prüfung auf wiederkehrende Einträge (inkl. Bilder) aus
+            await checkRecurring();
+            
             if(document.getElementById('view-list').classList.contains('active')) {
                 render();
             }
+        };
+        dbReq.onerror = () => {
+            console.error("IndexedDB error. Bilder können nicht geladen werden.");
+            checkRecurring();
+            render();
         };
 
         function saveFileToDB(id, dataUrl) {
             if(!db) return;
             const tx = db.transaction('files', 'readwrite');
             tx.objectStore('files').put(dataUrl, id);
+        }
+
+        // Hilfsfunktion: Lädt ein Bild aus der Datenbank (wird für wiederkehrende Kopien gebraucht)
+        function getFileFromDB(id) {
+            return new Promise((resolve) => {
+                if (!db) return resolve(null);
+                const tx = db.transaction('files', 'readonly');
+                const req = tx.objectStore('files').get(id);
+                req.onsuccess = () => resolve(req.result || null);
+                req.onerror = () => resolve(null);
+            });
         }
 
         let currentPreviewData = null;
@@ -815,7 +835,8 @@
             checkboxes.forEach(cb => cb.checked = !allChecked);
         }
 
-        function checkRecurring() {
+        // Überprüft automatisch auf anstehende wiederkehrende Einträge und kopiert Vorlagen-Bilder mit
+        async function checkRecurring() {
             const now = new Date();
             const currentYear = now.getFullYear();
             const currentMonth = now.getMonth();
@@ -833,9 +854,10 @@
 
                 let checkY = startYear;
                 let checkM = startMonth;
+                let changesMade = false;
 
                 while (checkY < currentYear || (checkY === currentYear && checkM <= currentMonth)) {
-                    recurringItems.forEach(item => {
+                    for (let item of recurringItems) {
                         const activeMonths = item.months || [0,1,2,3,4,5,6,7,8,9,10,11];
 
                         let isValid = true;
@@ -863,9 +885,10 @@
                                 if (day > maxDays) day = maxDays;
 
                                 const entryDate = new Date(checkY, checkM, day, 12, 0, 0);
+                                const newId = generateId();
 
                                 expenses.push({
-                                    id: generateId(),
+                                    id: newId,
                                     desc: item.desc,
                                     amount: item.amount,
                                     category: item.category,
@@ -873,11 +896,21 @@
                                     date: entryDate.toISOString(),
                                     isAuto: true,
                                     taxRelevant: item.taxRelevant !== false,
-                                    hasFile: false
+                                    hasFile: item.hasFile || false,
+                                    fileName: item.fileName || ""
                                 });
+                                changesMade = true;
+
+                                // Wenn die Vorlage ein Bild hat, kopiere es aus der Datenbank in den neuen Eintrag
+                                if (item.hasFile && item.id) {
+                                    const dataUrl = await getFileFromDB('rec_' + item.id);
+                                    if (dataUrl) {
+                                        saveFileToDB(newId, dataUrl);
+                                    }
+                                }
                             }
                         }
-                    });
+                    }
 
                     checkM++;
                     if (checkM > 11) {
@@ -887,6 +920,7 @@
                 }
                 
                 localStorage.setItem('lastCheck', currentMonthKey);
+                lastRecurringCheck = currentMonthKey;
                 save();
             }
         }
@@ -954,14 +988,24 @@
                 }
                 
                 const startDateISO = baseDate.toISOString();
+                const recId = generateId(); // Eigene ID für die wiederkehrende Vorlage
+
+                // Speichere das Vorlagen-Bild sicher in der Datenbank ab
+                if (hasFile && fileDataUrl) {
+                    saveFileToDB('rec_' + recId, fileDataUrl);
+                }
+
                 recurringItems.push({ 
+                    id: recId,
                     desc: desc, 
                     amount: amount, 
                     category: category, 
                     account: account, 
                     months: selectedMonths, 
                     taxRelevant: isTaxRelevant, 
-                    startDate: startDateISO 
+                    startDate: startDateISO,
+                    hasFile: hasFile,
+                    fileName: fileName
                 });
 
                 const startY = baseDate.getFullYear();
@@ -1098,12 +1142,11 @@
             const groupedByMonth = {};
             
             filtered.forEach(item => {
-                // 1. REPARATUR-FUNKTION: Wenn laut Text ein Bild da sein soll, 
-                // aber in der Datenbank nichts ist, wird der Fehler hier repariert.
+                // REPARATUR-FUNKTION
                 if (validFileIds !== null) {
                     const fileReallyExists = validFileIds.includes(item.id);
                     if (item.hasFile !== fileReallyExists) {
-                        item.hasFile = fileReallyExists; // Repariert den Eintrag sofort
+                        item.hasFile = fileReallyExists; 
                         dataCorrupted = true;
                     }
                 }
@@ -1153,7 +1196,6 @@
                 groupedByMonth[sortKey].items.push(item);
             });
 
-            // Wenn alte "Geister-Einträge" gefunden wurden, Speichern wir die reparierte Version dauerhaft
             if (dataCorrupted) {
                 save(); 
             }
@@ -1562,9 +1604,8 @@
             reader.readAsText(file);
         }
 
-        // App starten
-        checkRecurring();
-        showView('view-list');
+        // App Start-UI sofort zeigen (Bildschirm nicht leer lassen, bis DB geladen ist)
+        document.getElementById('view-list').classList.add('active');
     </script>
 </body>
 </html>
