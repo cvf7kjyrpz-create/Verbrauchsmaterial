@@ -21,6 +21,7 @@
             --danger: #ef4444;
             --edit: #3b82f6;
             --success: #10b981;
+            --warning: #f59e0b;
             --border-radius: 10px;
             --border-color: rgba(255, 255, 255, 0.1);
         }
@@ -232,7 +233,7 @@
         .btn-action { background: #1a1a1a; color: #fff; border: 1px solid var(--border-color); font-size: 0.7rem; padding: 8px; }
 
         /* List View */
-        #view-list { overflow-y: hidden; } /* Managed by inner container */
+        #view-list { overflow-y: hidden; } 
         
         .filter-section {
             background: var(--card-bg);
@@ -277,7 +278,7 @@
         }
         
         .month-header-sum {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: bold;
             color: #ffffff; 
         }
@@ -434,22 +435,34 @@
             <button onclick="showView('view-home')" class="btn-action" style="width: auto; padding: 5px 12px; border-radius: 6px; background: white; color: black; font-weight: bold; font-size: 0.75rem;">+ NEUER EINTRAG</button>
         </header>
 
-        <!-- NEU: Gesamtkosten Feld ganz oben -->
+        <!-- 1. Gesamtkosten -->
         <div class="stats-grid" style="grid-template-columns: 1fr; margin-bottom: 4px;">
             <div class="stat-card" style="border-color: #555;">
-                <span class="stat-label">Gesamtkosten (Steuer + Privat) - <span id="total-all-count">0</span> Einträge</span>
+                <span class="stat-label">Gesamtkosten (<span id="total-all-count">0</span> Einträge)</span>
                 <span class="stat-val" id="total-all-val" style="font-size: 1rem;">0,00 €</span>
             </div>
         </div>
 
-        <!-- GETRENNTE STATISTIKEN (Steuer vs Privat) -->
-        <div class="stats-grid">
+        <!-- 2. Aufschlüsselung: Konten -->
+        <div class="stats-grid" style="margin-bottom: 4px;">
+            <div class="stat-card" style="border-color: rgba(16, 185, 129, 0.4);">
+                <span class="stat-label" style="color: #6ee7b7;">Firmenkonto (<span id="acc-firma-count">0</span>)</span>
+                <span class="stat-val" id="acc-firma-val">0,00 €</span>
+            </div>
+            <div class="stat-card" style="border-color: rgba(245, 158, 11, 0.4);">
+                <span class="stat-label" style="color: #fcd34d;">Privatkonto (<span id="acc-privat-count">0</span>)</span>
+                <span class="stat-val" id="acc-privat-val" style="color: #e5e5e5;">0,00 €</span>
+            </div>
+        </div>
+
+        <!-- 3. Aufschlüsselung: Steuer -->
+        <div class="stats-grid" style="margin-bottom: 8px;">
             <div class="stat-card" style="border-color: rgba(59, 130, 246, 0.4);">
                 <span class="stat-label" style="color: #60a5fa;">Steuerrelevant (<span id="tax-count">0</span>)</span>
                 <span class="stat-val" id="tax-val">0,00 €</span>
             </div>
             <div class="stat-card">
-                <span class="stat-label">Privat (<span id="priv-count">0</span>)</span>
+                <span class="stat-label">Ohne Steuer / Privat (<span id="priv-count">0</span>)</span>
                 <span class="stat-val" id="priv-val" style="color: #aaa;">0,00 €</span>
             </div>
         </div>
@@ -466,7 +479,6 @@
                 </div>
             </div>
             <div class="checkbox-row" style="margin-top: 2px; border-top: 1px solid var(--border-color); padding-top: 4px;">
-                <!-- STANDARDMÄSSIG DEAKTIVIERT -->
                 <input type="checkbox" id="filter-tax" onchange="render()">
                 <label for="filter-tax" style="color:white; font-size:0.7rem;">Nur steuerrelevante anzeigen</label>
             </div>
@@ -501,10 +513,21 @@
                 <label>Bezeichnung</label>
                 <input type="text" id="desc" placeholder="z.B. Klebeband" autocomplete="off">
             </div>
+            
             <div class="input-row">
                 <label>Betrag in €</label>
                 <input type="number" id="amount" step="0.01" placeholder="0.00" inputmode="decimal">
             </div>
+            
+            <!-- Auswahl des Kontos -->
+            <div class="input-row">
+                <label>Bezahlt von</label>
+                <select id="account">
+                    <option value="Firma">Firmenkonto</option>
+                    <option value="Privat">Privatkonto</option>
+                </select>
+            </div>
+
             <div class="input-row">
                 <label>Kategorie</label>
                 <select id="category" onchange="toggleCustomCategory('category', 'custom-category-container')">
@@ -524,7 +547,6 @@
             </div>
             
             <div class="checkbox-row" style="margin-bottom: 8px;">
-                <!-- STANDARDMÄSSIG DEAKTIVIERT -->
                 <input type="checkbox" id="tax-relevant">
                 <label for="tax-relevant" style="font-weight:600; color:white;">Für Steuer relevant</label>
             </div>
@@ -533,7 +555,7 @@
                 <label>Beleg / Rechnung</label>
                 <div class="file-input-wrapper">
                     <span id="file-label">📎 Optional hinzufügen...</span>
-                    <input type="file" id="receipt-file" accept="image/*,application/pdf" onchange="updateFileLabel()">
+                    <input type="file" id="receipt-file" accept="image/*,application/pdf" onchange="updateFileLabel('receipt-file', 'file-label')">
                 </div>
             </div>
 
@@ -575,7 +597,7 @@
 
     <!-- EDIT MODAL -->
     <div id="edit-modal" class="modal-overlay">
-        <div class="form-container" style="max-width: 500px; width: 100%; max-height: 80vh;">
+        <div class="form-container" style="max-width: 500px; width: 100%; max-height: 85vh;">
             <h2 style="color:white; margin-bottom:15px; font-size:1rem; text-align:center;">Eintrag bearbeiten</h2>
             <input type="hidden" id="edit-id">
             
@@ -587,10 +609,21 @@
                 <label>Datum</label>
                 <input type="date" id="edit-date">
             </div>
+            
             <div class="input-row">
                 <label>Betrag in €</label>
                 <input type="number" id="edit-amount" step="0.01" inputmode="decimal">
             </div>
+            
+            <!-- Auswahl des Kontos im Edit-Modus -->
+            <div class="input-row">
+                <label>Bezahlt von</label>
+                <select id="edit-account">
+                    <option value="Firma">Firmenkonto</option>
+                    <option value="Privat">Privatkonto</option>
+                </select>
+            </div>
+
             <div class="input-row">
                 <label>Kategorie</label>
                 <select id="edit-category" onchange="toggleCustomCategory('edit-category', 'edit-custom-category-container')">
@@ -608,11 +641,20 @@
                 <input type="text" id="edit-custom-category" placeholder="Eigene Kategorie eingeben..." autocomplete="off">
             </div>
 
-            <div class="checkbox-row" style="margin-bottom: 15px;">
+            <div class="checkbox-row" style="margin-bottom: 10px;">
                 <input type="checkbox" id="edit-tax">
                 <label for="edit-tax" style="color:white;">Für Steuer relevant</label>
             </div>
             
+            <!-- Dateiupload nachträglich -->
+            <div class="input-row" style="margin-bottom: 15px;">
+                <label>Beleg nachträglich hinzufügen/ändern</label>
+                <div class="file-input-wrapper">
+                    <span id="edit-file-label">📎 Optional hinzufügen...</span>
+                    <input type="file" id="edit-receipt-file" accept="image/*,application/pdf" onchange="updateFileLabel('edit-receipt-file', 'edit-file-label')">
+                </div>
+            </div>
+
             <div class="modal-actions" style="margin-top:0;">
                 <button class="btn btn-modal-close" onclick="closeEditModal()">Abbrechen</button>
                 <button class="btn btn-add" style="margin-top:0;" onclick="saveEdit()">Speichern</button>
@@ -774,9 +816,9 @@
             return Date.now().toString() + Math.random().toString(36).substring(2, 9);
         }
 
-        function updateFileLabel() {
-            const input = document.getElementById('receipt-file');
-            const label = document.getElementById('file-label');
+        function updateFileLabel(inputId, labelId) {
+            const input = document.getElementById(inputId);
+            const label = document.getElementById(labelId);
             if(input.files.length > 0) {
                 label.innerText = "📎 " + input.files[0].name;
                 label.style.color = "#fff";
@@ -846,6 +888,7 @@
                                     desc: item.desc,
                                     amount: item.amount,
                                     category: item.category,
+                                    account: item.account || 'Firma', 
                                     date: entryDate.toISOString(),
                                     isAuto: true,
                                     taxRelevant: item.taxRelevant !== false 
@@ -881,6 +924,7 @@
             const dateVal = document.getElementById('date').value;
             const desc = document.getElementById('desc').value;
             const amount = document.getElementById('amount').value;
+            const account = document.getElementById('account').value;
             const isRecurring = document.getElementById('recurring').checked;
             const isTaxRelevant = document.getElementById('tax-relevant').checked;
             const fileInput = document.getElementById('receipt-file');
@@ -926,7 +970,7 @@
                 }
                 
                 const startDateISO = baseDate.toISOString();
-                recurringItems.push({ desc, amount, category, months: selectedMonths, taxRelevant: isTaxRelevant, startDate: startDateISO });
+                recurringItems.push({ desc, amount, category, account, months: selectedMonths, taxRelevant: isTaxRelevant, startDate: startDateISO });
 
                 const startY = baseDate.getFullYear();
                 const startM = baseDate.getMonth();
@@ -951,6 +995,7 @@
                             desc: desc,
                             amount: amount,
                             category: category,
+                            account: account,
                             date: entryDate.toISOString(),
                             isAuto: true,
                             taxRelevant: isTaxRelevant,
@@ -970,6 +1015,7 @@
                     desc, 
                     amount, 
                     category, 
+                    account,
                     date: baseDate.toISOString(),
                     isAuto: false,
                     taxRelevant: isTaxRelevant,
@@ -983,19 +1029,20 @@
             document.getElementById('date').value = getTodayString();
             document.getElementById('desc').value = '';
             document.getElementById('amount').value = '';
+            document.getElementById('account').value = 'Firma';
             document.getElementById('category').value = 'Internet';
             document.getElementById('custom-category').value = '';
             document.getElementById('custom-category-container').style.display = 'none';
             document.getElementById('recurring').checked = false;
-            document.getElementById('tax-relevant').checked = false; // Zurücksetzen (Standard aus)
+            document.getElementById('tax-relevant').checked = false;
             document.querySelectorAll('.month-checkbox').forEach(cb => cb.checked = false);
             document.getElementById('months-container').style.display = 'none';
             fileInput.value = '';
-            updateFileLabel();
+            updateFileLabel('receipt-file', 'file-label');
             
             save();
             render();
-            showView('view-list'); // Direkt zurück zur Übersicht
+            showView('view-list'); 
         }
 
         function getFilteredItems() {
@@ -1028,16 +1075,32 @@
             let privTotal = 0;
             let privCount = 0;
 
+            let accFirmaTotal = 0;
+            let accFirmaCount = 0;
+            let accPrivatTotal = 0;
+            let accPrivatCount = 0;
+
             const groupedByMonth = {};
             
             filtered.forEach(item => {
                 const isTax = item.taxRelevant !== false;
+                const isFirma = (item.account === 'Firma' || !item.account);
+                const amt = parseFloat(item.amount);
+
                 if (isTax) {
-                    taxTotal += parseFloat(item.amount);
+                    taxTotal += amt;
                     taxCount++;
                 } else {
-                    privTotal += parseFloat(item.amount);
+                    privTotal += amt;
                     privCount++;
+                }
+
+                if (isFirma) {
+                    accFirmaTotal += amt;
+                    accFirmaCount++;
+                } else {
+                    accPrivatTotal += amt;
+                    accPrivatCount++;
                 }
 
                 if(!item.id) item.id = generateId(); 
@@ -1050,11 +1113,16 @@
                     groupedByMonth[sortKey] = {
                         label: monthName,
                         total: 0,
+                        companyTotal: 0,
                         items: []
                     };
                 }
                 
-                groupedByMonth[sortKey].total += parseFloat(item.amount);
+                groupedByMonth[sortKey].total += amt;
+                if (isFirma) {
+                    groupedByMonth[sortKey].companyTotal += amt;
+                }
+                
                 groupedByMonth[sortKey].items.push(item);
             });
 
@@ -1064,7 +1132,11 @@
             document.getElementById('priv-count').innerText = privCount;
             document.getElementById('priv-val').innerText = privTotal.toFixed(2).replace('.', ',') + ' €';
 
-            // Gesamtkosten
+            document.getElementById('acc-firma-count').innerText = accFirmaCount;
+            document.getElementById('acc-firma-val').innerText = accFirmaTotal.toFixed(2).replace('.', ',') + ' €';
+            document.getElementById('acc-privat-count').innerText = accPrivatCount;
+            document.getElementById('acc-privat-val').innerText = accPrivatTotal.toFixed(2).replace('.', ',') + ' €';
+
             const overallTotal = taxTotal + privTotal;
             const overallCount = taxCount + privCount;
             document.getElementById('total-all-val').innerText = overallTotal.toFixed(2).replace('.', ',') + ' €';
@@ -1079,12 +1151,16 @@
                 headerDiv.className = 'month-header';
                 headerDiv.innerHTML = `
                     <span class="month-header-title">${group.label}</span>
-                    <span class="month-header-sum">${group.total.toFixed(2).replace('.', ',')} €</span>
+                    <span class="month-header-sum">
+                        ${group.companyTotal.toFixed(2).replace('.', ',')} € 
+                        <span style="color:#aaa; font-size:0.6rem; font-weight:normal;">(${group.total.toFixed(2).replace('.', ',')} €)</span>
+                    </span>
                 `;
                 container.appendChild(headerDiv);
 
                 group.items.forEach(item => {
                     const isTax = item.taxRelevant !== false;
+                    const accountName = item.account || 'Firma'; 
                     const div = document.createElement('div');
                     div.className = 'item';
                     div.dataset.id = item.id; 
@@ -1096,7 +1172,7 @@
                                 ${item.isAuto ? '🔄' : ''} 
                                 ${isTax ? '<span class="badge badge-tax">Steuer</span>' : '<span class="badge">Privat</span>'}
                             </div>
-                            <div class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</div>
+                            <div class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category} | ${accountName}</div>
                         </div>
                         <div class="item-right">
                             <div class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</div>
@@ -1112,7 +1188,6 @@
             });
         }
 
-        // --- NEU: ZUSAMMENGEFASSTE EXPORT LOGIK ---
         function openExportModal() {
             const items = getFilteredItems();
             const container = document.getElementById('export-list');
@@ -1124,11 +1199,9 @@
                 return;
             }
 
-            // Gruppieren der identischen Ausgaben
             const groups = {};
             items.forEach(item => {
-                // Key = Bezeichnung + Betrag + Kategorie + Steuerrelevant
-                const key = item.desc + '|' + item.amount + '|' + item.category + '|' + item.taxRelevant;
+                const key = item.desc + '|' + item.amount + '|' + item.category + '|' + item.taxRelevant + '|' + (item.account||'Firma');
                 if(!groups[key]) {
                     groups[key] = {
                         desc: item.desc,
@@ -1150,7 +1223,6 @@
                 const dateStr = g.ids.length > 1 ? `${minDate} - ${maxDate} (${g.ids.length}x)` : minDate;
                 const totalAmount = (parseFloat(g.amount) * g.ids.length).toFixed(2).replace('.', ',');
                 
-                // STANDARDMÄSSIG ALLE AUSGETRAGEN (kein 'checked' Attribut)
                 container.innerHTML += `
                     <label style="display:flex; align-items:center; gap:8px; padding: 6px 4px; border-bottom: 1px solid #222;">
                         <input type="checkbox" class="export-checkbox" data-ids='${JSON.stringify(g.ids)}' style="width:18px; height:18px; accent-color: white;">
@@ -1189,11 +1261,12 @@
             let filtered = expenses.filter(e => selectedIds.includes(e.id));
             filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Betrag;Steuerrelevant;BelegVorhanden\n";
+            let csv = "\uFEFFDatum;Bezeichnung;Kategorie;Konto;Betrag;Steuerrelevant;BelegVorhanden\n";
             filtered.forEach(e => {
                 const isTax = e.taxRelevant !== false ? "Ja" : "Nein";
                 const hasReceipt = e.hasFile ? "Ja" : "Nein";
-                csv += `${new Date(e.date).toLocaleDateString('de-DE')};${e.desc};${e.category};${e.amount.replace('.', ',')};${isTax};${hasReceipt}\n`;
+                const acc = e.account || "Firma";
+                csv += `${new Date(e.date).toLocaleDateString('de-DE')};${e.desc};${e.category};${acc};${e.amount.replace('.', ',')};${isTax};${hasReceipt}\n`;
             });
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1209,7 +1282,6 @@
             const selectedIds = getSelectedExportIds();
             if(selectedIds.length === 0) return alert("Keine Einträge ausgewählt.");
             
-            // Verstecke alle nicht gewählten Einträge für den Druck
             document.querySelectorAll('.item').forEach(el => {
                 if(!selectedIds.includes(el.dataset.id)) {
                     el.classList.add('no-print');
@@ -1218,7 +1290,6 @@
                 }
             });
 
-            // Verstecke leere Monats-Köpfe
             document.querySelectorAll('.month-header').forEach(header => {
                 let next = header.nextElementSibling;
                 let hasVisibleItem = false;
@@ -1236,10 +1307,9 @@
 
             closeExportModal();
             
-            // Kurz warten, bis Modal weg ist, dann drucken
             setTimeout(() => {
                 window.print();
-                render(); // Danach Liste wieder sauber aufbauen
+                render(); 
             }, 300);
         }
 
@@ -1250,6 +1320,7 @@
             document.getElementById('edit-id').value = expense.id;
             document.getElementById('edit-desc').value = expense.desc;
             document.getElementById('edit-amount').value = expense.amount;
+            document.getElementById('edit-account').value = expense.account || 'Firma'; 
             document.getElementById('edit-tax').checked = expense.taxRelevant !== false;
             
             const catSelect = document.getElementById('edit-category');
@@ -1273,6 +1344,16 @@
             const day = String(d.getDate()).padStart(2, '0');
             document.getElementById('edit-date').value = `${year}-${month}-${day}`;
 
+            document.getElementById('edit-receipt-file').value = '';
+            const fileLabel = document.getElementById('edit-file-label');
+            if(expense.hasFile) {
+                fileLabel.innerText = "📎 Beleg vorhanden (Neu auswählen zum Ersetzen)";
+                fileLabel.style.color = "#60a5fa";
+            } else {
+                fileLabel.innerText = "📎 Optional hinzufügen...";
+                fileLabel.style.color = "var(--text-dim)";
+            }
+
             document.getElementById('edit-modal').style.display = 'flex';
         }
 
@@ -1280,13 +1361,14 @@
             document.getElementById('edit-modal').style.display = 'none';
         }
 
-        function saveEdit() {
+        async function saveEdit() {
             const id = document.getElementById('edit-id').value;
             const expense = expenses.find(e => e.id === id);
             if (!expense) return;
 
             const newDesc = document.getElementById('edit-desc').value;
             const newAmount = document.getElementById('edit-amount').value;
+            const newAccount = document.getElementById('edit-account').value;
             const newTax = document.getElementById('edit-tax').checked;
             const newDateVal = document.getElementById('edit-date').value;
             
@@ -1303,6 +1385,7 @@
             expense.desc = newDesc;
             expense.amount = newAmount.replace(',', '.');
             expense.category = newCategory;
+            expense.account = newAccount;
             expense.taxRelevant = newTax;
             
             const oldDate = new Date(expense.date);
@@ -1311,6 +1394,21 @@
                 oldDate.setFullYear(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
             }
             expense.date = oldDate.toISOString();
+
+            const fileInput = document.getElementById('edit-receipt-file');
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                expense.hasFile = true;
+                expense.fileName = file.name;
+                
+                const fileDataUrl = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+                
+                saveFileToDB(expense.id, fileDataUrl);
+            }
 
             save();
             render();
@@ -1358,7 +1456,6 @@
         }
 
         checkRecurring();
-        // Starte App in der Übersicht
         showView('view-list');
     </script>
 </body>
