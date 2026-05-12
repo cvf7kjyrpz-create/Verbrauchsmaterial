@@ -866,6 +866,7 @@
                                     date: entryDate.toISOString(),
                                     isAuto: true,
                                     taxRelevant: item.taxRelevant !== false 
+                                    // Automatisch generierte Einträge haben keinen Beleg
                                 });
                             }
                         }
@@ -1155,9 +1156,10 @@
                     div.className = 'item';
                     div.dataset.id = item.id; 
                     
+                    // SICHERE LOGIK: Büroklammer wird nur generiert, wenn item.hasFile = true ist.
                     let fileButtonHTML = '';
-                    if (item.hasFile) {
-                        fileButtonHTML = `<button class="icon-btn" onclick="openPreviewModal('${item.id}', '${item.fileName}')">📎</button>`;
+                    if (item.hasFile === true) {
+                        fileButtonHTML = `<button class="icon-btn" style="color: #60a5fa;" onclick="openPreviewModal('${item.id}', '${item.fileName}')">📎</button>`;
                     }
 
                     let taxBadgeHTML = '';
