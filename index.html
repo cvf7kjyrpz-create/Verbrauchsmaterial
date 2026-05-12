@@ -128,7 +128,7 @@
             color: white;
             font-size: 0.9rem;
             outline: none;
-            appearance: none; /* Entfernt Standard-iOS Styling */
+            appearance: none;
         }
         
         select {
@@ -243,13 +243,38 @@
         .filter-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px; /* Vergrößert, damit Datumsfelder sich nicht berühren */
+            gap: 12px; 
             margin-bottom: 8px;
         }
 
         .expense-list-container {
             flex: 1;
             padding-bottom: 20px;
+        }
+
+        /* --- NEU: Monatstrenner --- */
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5px 5px 5px;
+            margin-top: 10px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #444;
+            color: #cccccc;
+        }
+        
+        .month-header-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .month-header-sum {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--text-main);
         }
 
         .item {
@@ -301,7 +326,54 @@
             font-size: 0.65rem; padding: 5px 8px; border-radius: 4px; 
         }
 
-        /* Bottom Actions Grid */
+        /* --- NEU: Modal für Bildvorschau --- */
+        #preview-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
+        }
+        
+        #preview-content {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #preview-content img, #preview-content iframe {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .modal-actions {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            padding-bottom: 10px;
+        }
+
+        .btn-modal-close {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+        
+        .btn-modal-share {
+            background: #ffffff;
+            color: #000000;
+        }
+
         .bottom-actions {
             margin-top: auto; 
             padding-bottom: 10px; 
@@ -315,8 +387,10 @@
             body { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
             .view { display: none !important; }
             #view-list { display: block !important; }
-            .btn, .filter-section, .item-actions, header, .btn-nav, .bottom-actions { display: none !important; }
-            .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; }
+            .btn, .filter-section, .item-actions, header, .btn-nav, .bottom-actions, #preview-modal { display: none !important; }
+            .item { border: 1px solid #ccc !important; background: white !important; color: black !important; margin-bottom: 5px; page-break-inside: avoid; }
+            .month-header { border-bottom: 2px solid black !important; color: black !important; margin-top: 20px; }
+            .month-header-sum { color: black !important; }
             .item-meta { color: #555 !important; }
             .badge { border: 1px solid #999 !important; color: black !important; background: none !important; }
             .stat-card { background: white !important; border: 1px solid #ccc !important; color: black !important; }
@@ -442,6 +516,15 @@
         </div>
     </div>
 
+    <!-- VORSCHAU MODAL (Bild / PDF) -->
+    <div id="preview-modal">
+        <div id="preview-content"></div>
+        <div class="modal-actions">
+            <button class="btn btn-modal-close" onclick="closePreviewModal()">Schließen</button>
+            <button class="btn btn-modal-share" onclick="shareCurrentPreview()">Teilen / Sichern</button>
+        </div>
+    </div>
+
     <input type="file" id="imp" style="display:none" onchange="restore(event)">
 
     <script>
@@ -466,33 +549,79 @@
             tx.objectStore('files').put(dataUrl, id);
         }
 
-        async function downloadFileFromDB(id, fileName) {
+        // --- VORSCHAU & TEILEN LOGIK ---
+        let currentPreviewData = null;
+        let currentPreviewName = null;
+
+        function openPreviewModal(id, fileName) {
             if(!db) return alert("Datenbank nicht bereit.");
             const tx = db.transaction('files', 'readonly');
             const req = tx.objectStore('files').get(id);
-            req.onsuccess = async () => {
+            req.onsuccess = () => {
                 const dataUrl = req.result;
                 if(dataUrl) {
-                    try {
-                        const response = await fetch(dataUrl);
-                        const blob = await response.blob();
-                        const file = new File([blob], fileName || `Beleg_${id}.pdf`, { type: blob.type });
+                    currentPreviewData = dataUrl;
+                    currentPreviewName = fileName || `Beleg_${id}`;
+                    
+                    const contentContainer = document.getElementById('preview-content');
+                    contentContainer.innerHTML = ''; // Clear previous
 
-                        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                            await navigator.share({
-                                files: [file],
-                                title: fileName,
-                            });
-                        } else {
-                            triggerClassicDownload(dataUrl, fileName || `Beleg_${id}`);
-                        }
-                    } catch (err) {
-                        triggerClassicDownload(dataUrl, fileName || `Beleg_${id}`);
+                    if (dataUrl.startsWith('data:image')) {
+                        const img = document.createElement('img');
+                        img.src = dataUrl;
+                        contentContainer.appendChild(img);
+                    } else if (dataUrl.startsWith('data:application/pdf')) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = dataUrl;
+                        iframe.style.width = "100%";
+                        iframe.style.height = "100%";
+                        iframe.style.border = "none";
+                        contentContainer.appendChild(iframe);
+                    } else {
+                        contentContainer.innerHTML = '<p style="color:white;">Vorschau für diesen Dateityp nicht verfügbar.</p>';
                     }
+                    
+                    document.getElementById('preview-modal').style.display = 'flex';
                 } else {
-                    alert("Datei konnte nicht gefunden werden.");
+                    alert("Die Datei konnte nicht gefunden werden.");
                 }
             };
+        }
+
+        function closePreviewModal() {
+            document.getElementById('preview-modal').style.display = 'none';
+            document.getElementById('preview-content').innerHTML = '';
+            currentPreviewData = null;
+            currentPreviewName = null;
+        }
+
+        async function shareCurrentPreview() {
+            if (!currentPreviewData) return;
+            try {
+                const response = await fetch(currentPreviewData);
+                const blob = await response.blob();
+                
+                // Endung ableiten, falls keine vorhanden
+                let safeFileName = currentPreviewName;
+                if(!safeFileName.includes('.')) {
+                    safeFileName += currentPreviewData.startsWith('data:image') ? '.jpg' : '.pdf';
+                }
+
+                const file = new File([blob], safeFileName, { type: blob.type });
+
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: safeFileName,
+                    });
+                } else {
+                    triggerClassicDownload(currentPreviewData, safeFileName);
+                }
+            } catch (err) {
+                let fallbackName = currentPreviewName;
+                if(!fallbackName.includes('.')) fallbackName += '.pdf';
+                triggerClassicDownload(currentPreviewData, fallbackName);
+            }
         }
 
         function triggerClassicDownload(dataUrl, fileName) {
@@ -678,51 +807,89 @@
             const taxOnly = document.getElementById('filter-tax').checked;
             
             container.innerHTML = '';
-            let total = 0;
+            let globalTotal = 0;
 
             let filtered = expenses.sort((a,b) => new Date(b.date) - new Date(a.date));
             
+            // Filtern
             if (fromDate) filtered = filtered.filter(e => new Date(e.date) >= new Date(fromDate));
             if (toDate) {
                 let end = new Date(toDate);
                 end.setHours(23,59,59);
                 filtered = filtered.filter(e => new Date(e.date) <= end);
             }
-            
             if (taxOnly) {
                 filtered = filtered.filter(e => e.taxRelevant !== false);
             }
 
+            // Nach Monaten gruppieren
+            const groupedByMonth = {};
+            
             filtered.forEach(item => {
-                total += parseFloat(item.amount);
+                globalTotal += parseFloat(item.amount);
                 if(!item.id) item.id = generateId(); 
                 
-                const isTax = item.taxRelevant !== false;
+                const d = new Date(item.date);
+                // Erzeugt z.B. "Mai 2026"
+                const monthName = d.toLocaleString('de-DE', { month: 'long', year: 'numeric' });
+                // Erzeugt einen Sortierschlüssel z.B. "2026-05"
+                const sortKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 
-                const div = document.createElement('div');
-                div.className = 'item';
-                div.innerHTML = `
-                    <div class="item-top">
-                        <div>
-                            <span class="item-name">${item.desc} ${item.isAuto ? '🔄' : ''} ${isTax ? '<span class="badge badge-tax">Steuer</span>' : '<span class="badge">Privat</span>'}</span>
-                            <div class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</div>
-                        </div>
-                        <span class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
-                    </div>
-                    <div class="item-actions">
-                        <div>
-                            ${item.hasFile ? `<button class="file-btn" onclick="downloadFileFromDB('${item.id}', '${item.fileName}')">📎 iCloud</button>` : ''}
-                        </div>
-                        <div class="action-btns">
-                            <button class="icon-btn edit-btn" onclick="editExpense('${item.id}')">✎</button>
-                            <button class="icon-btn del-btn" onclick="removeExpense('${item.id}')">✕</button>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(div);
+                if (!groupedByMonth[sortKey]) {
+                    groupedByMonth[sortKey] = {
+                        label: monthName,
+                        total: 0,
+                        items: []
+                    };
+                }
+                
+                groupedByMonth[sortKey].total += parseFloat(item.amount);
+                groupedByMonth[sortKey].items.push(item);
             });
 
-            document.getElementById('total-val').innerText = total.toFixed(2).replace('.', ',') + ' €';
+            // Sortierte Schlüssel absteigend durchlaufen
+            const sortedMonthKeys = Object.keys(groupedByMonth).sort().reverse();
+
+            sortedMonthKeys.forEach(key => {
+                const group = groupedByMonth[key];
+
+                // Monats-Überschrift inkl. Summe erstellen
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'month-header';
+                headerDiv.innerHTML = `
+                    <span class="month-header-title">${group.label}</span>
+                    <span class="month-header-sum">${group.total.toFixed(2).replace('.', ',')} €</span>
+                `;
+                container.appendChild(headerDiv);
+
+                // Einträge dieses Monats rendern
+                group.items.forEach(item => {
+                    const isTax = item.taxRelevant !== false;
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.innerHTML = `
+                        <div class="item-top">
+                            <div>
+                                <span class="item-name">${item.desc} ${item.isAuto ? '🔄' : ''} ${isTax ? '<span class="badge badge-tax">Steuer</span>' : '<span class="badge">Privat</span>'}</span>
+                                <div class="item-meta">${new Date(item.date).toLocaleDateString('de-DE')} | ${item.category}</div>
+                            </div>
+                            <span class="item-price">${parseFloat(item.amount).toFixed(2).replace('.', ',')} €</span>
+                        </div>
+                        <div class="item-actions">
+                            <div>
+                                ${item.hasFile ? `<button class="file-btn" onclick="openPreviewModal('${item.id}', '${item.fileName}')">📎 Ansehen</button>` : ''}
+                            </div>
+                            <div class="action-btns">
+                                <button class="icon-btn edit-btn" onclick="editExpense('${item.id}')">✎</button>
+                                <button class="icon-btn del-btn" onclick="removeExpense('${item.id}')">✕</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            });
+
+            document.getElementById('total-val').innerText = globalTotal.toFixed(2).replace('.', ',') + ' €';
             document.getElementById('total-count').innerText = filtered.length;
         }
 
